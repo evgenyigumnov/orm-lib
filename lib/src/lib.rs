@@ -28,12 +28,16 @@ pub enum ORMError {
     Unknown,
 }
 
-pub trait Table {
+pub trait TableSerialize {
     fn name(&self) -> String{
         "Test".to_string()
     }
 }
-
+pub trait TableDeserialize {
+    fn same_name() -> String{
+        "Test".to_string()
+    }
+}
 pub struct ORM {}
 
 impl ORM {
@@ -41,7 +45,7 @@ impl ORM {
         Arc::new(ORM {})
     }
     pub fn insert<T>(&self, data: T) -> QueryBuilder<i32, T>
-    where T: Table + Serialize + 'static
+    where T: TableDeserialize + TableSerialize + Serialize + 'static
     {
         let table_name = data.name();
         let types = serializer_types::to_string(&data).unwrap();
@@ -145,7 +149,7 @@ impl<Z, T> QueryBuilder<Option<Z>,T> {
     }
 }
 
-impl<Z> QueryBuilder<Vec<Z>, Box<dyn Table>> {
+impl<Z> QueryBuilder<Vec<Z>,Z> {
     pub async fn run(&self) -> Result<Vec<Z>, ORMError> {
         Ok(Vec::new())
     }

@@ -11,11 +11,13 @@ async fn main() -> Result<(), ORMError> {
 #[cfg(test)]
 mod tests {
     use serde_derive::Serialize;
-    use orm_derive::Table;
-    use ormlib::Table;
+    use orm_derive::TableDeserialize;
+    use ormlib::TableDeserialize;
+    use orm_derive::TableSerialize;
+    use ormlib::TableSerialize;
     use ormlib::ORMError;
 
-    #[derive(Table, Debug)]
+    #[derive(TableSerialize, TableDeserialize, Debug)]
     #[table(name = "B")]
     pub struct TestB {
         pub id: i32,
@@ -26,6 +28,7 @@ mod tests {
 
         let t = TestB { id: 0 };
         assert_eq!(t.name(), "B");
+        assert_eq!(TestB::same_name(), "B");
 
         Ok(())
     }
@@ -35,7 +38,7 @@ mod tests {
     #[tokio::test]
     async fn test() -> Result<(), ORMError> {
 
-        #[derive(Table, Serialize, Debug, Clone)]
+        #[derive(TableDeserialize, TableSerialize , Serialize, Debug, Clone)]
         #[table(name = "user")]
         pub struct User {
             pub id: i32,

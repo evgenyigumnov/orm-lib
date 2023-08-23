@@ -9,7 +9,7 @@ struct Opts {
     name: Option<String>,
 }
 
-#[proc_macro_derive(Table, attributes(table))]
+#[proc_macro_derive(TableSerialize, attributes(table))]
 pub fn derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input);
     let opts = Opts::from_derive_input(&input).expect("Wrong options");
@@ -30,7 +30,35 @@ pub fn derive(input: TokenStream) -> TokenStream {
     };
 
     let output = quote! {
-        impl ormlib::Table for #ident {
+        impl ormlib::TableSerialize for #ident {
+            #answer
+        }
+    };
+    output.into()
+}
+
+#[proc_macro_derive(TableDeserialize, attributes(table))]
+pub fn derive_de(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input);
+    let opts = Opts::from_derive_input(&input).expect("Wrong options");
+    let DeriveInput { ident, .. } = input;
+
+    let answer = match opts.name {
+        Some(x) => quote! {
+            fn same_name() -> String {
+                #x.to_string()
+            }
+        },
+        None => quote! {
+            fn same_name() -> String {
+                let r = format!("{:?}", #ident);
+                r
+            }
+        },
+    };
+
+    let output = quote! {
+        impl ormlib::TableDeserialize for #ident {
             #answer
         }
     };
