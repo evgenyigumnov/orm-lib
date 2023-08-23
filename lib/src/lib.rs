@@ -11,6 +11,9 @@
 //!    Ok(())
 //! }
 
+mod serializer_error;
+mod serializer_all_types;
+
 use std::sync::Arc;
 
 use thiserror::Error;
@@ -61,7 +64,7 @@ impl ORM {
         todo!()
     }
 
-    pub fn init(&self, script: String) -> Result<(), ORMError>  {
+    pub async fn init(&self, script: String) -> Result<(), ORMError>  {
         todo!()
     }
 }
