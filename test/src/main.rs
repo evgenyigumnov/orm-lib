@@ -15,17 +15,11 @@ mod tests {
     use ormlib::Table;
     use ormlib::ORMError;
 
-
-
-
-
     #[derive(Table, Debug)]
     #[table(name = "B")]
     pub struct TestB {
         pub id: i32,
     }
-
-
 
     #[tokio::test]
     async fn test_derive() -> Result<(), ORMError> {
@@ -35,9 +29,6 @@ mod tests {
 
         Ok(())
     }
-
-
-
 
     use ormlib::{ORM, Row};
 
