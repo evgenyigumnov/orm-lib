@@ -8,6 +8,7 @@
 
 use crate::serializer_error::{Error, Result};
 use serde::ser::{self, Serialize};
+use crate::ORM;
 
 pub struct Serializer {
     // This string starts empty and JSON is appended as values are serialized.
@@ -122,7 +123,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     // contains a '"' character.
     fn serialize_str(self, v: &str) -> Result<()> {
         self.output += "\"";
-        self.output += v;
+        self.output += ORM::escape(v.to_string()).as_str();
         self.output += "\"";
         Ok(())
     }
