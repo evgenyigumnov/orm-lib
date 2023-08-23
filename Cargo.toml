@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "lib",
-#    "test",
+    "test",
+    "orm_derive",
 ]
 

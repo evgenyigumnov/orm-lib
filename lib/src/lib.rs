@@ -15,7 +15,6 @@ mod serializer_error;
 mod serializer_types;
 mod serializer_values;
 mod serializer_key_values;
-
 use std::sync::Arc;
 
 use thiserror::Error;
@@ -26,6 +25,12 @@ pub enum ORMError {
     StdError(#[from] std::io::Error),
     #[error("unknown error")]
     Unknown,
+}
+
+pub trait Table {
+    fn name(&self) -> String{
+        "Test".to_string()
+    }
 }
 
 pub struct ORM {}
