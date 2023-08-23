@@ -47,19 +47,12 @@ mod tests {
 
     #[tokio::test]
     async fn test() -> Result<(), ORMError> {
+        let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
+
         let conn = ORM::connect("file.db".to_string());
         let init_script = "create_table_1.sql".to_string();
         conn.init(init_script).await?;
 
-
-        let query = format!("SELECT * FROM User WHERE name like {}", conn.protect("John".to_string()));
-        let result_set: Vec<Row> = conn.query(query).run().await?;
-        for row in result_set {
-            let id = row.get::<i32>("id");
-            let name = row.get::<String>("name");
-        }
-        let query = "delete from User".to_string();
-        let updated_rows: i32 = conn.query_update(query).run().await?;
 
 
 
@@ -73,6 +66,15 @@ mod tests {
         let user_opt: Vec<User> = conn.findMany("id > 0".to_string()).run().await?;
         let user_opt: Vec<User> = conn.findAll().limit(10).run().await?;
         let updated_rows: i32 = conn.update(user.clone(), "id = 1".to_string()).run().await?;
+
+        let query = format!("SELECT * FROM User WHERE name like {}", conn.protect("John".to_string()));
+        let result_set: Vec<Row> = conn.query(query).run().await?;
+        for row in result_set {
+            let id = row.get::<i32>("id");
+            let name = row.get::<String>("name");
+        }
+        let query = "delete from User".to_string();
+        let updated_rows: i32 = conn.query_update(query).run().await?;
 
 
         Ok(())
