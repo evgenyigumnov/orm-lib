@@ -124,6 +124,11 @@ impl<'de> Deserializer<'de> {
                 } else {
                     s_src
                 };
+                let sign = if s_src.starts_with("-") {
+                    -1
+                } else {
+                    1
+                };
                 self.input = &self.input[len + 1..];
                 let mut int = T::from(0);
                 for ch in s[0..].chars() {
@@ -131,6 +136,8 @@ impl<'de> Deserializer<'de> {
                     let rrr = ch as u8 - b'0';
                     int += T::from(rrr as i8);
                 }
+
+                int *= T::from(sign);
                 Ok(int)
             }
             None => Err(Error::Eof),
@@ -684,14 +691,16 @@ mod tests {
         #[derive(Deserialize, PartialEq, Debug)]
         struct Test {
             id: i32,
+            id_positive: i32,
             name: String,
             ud: u64,
 
         }
 
-        let j = r#"{"id":"-222","name":"a","ud":"777"}"#;
+        let j = r#"{"id":"-222","id_positive":"1","name":"a","ud":"777"}"#;
         let expected = Test {
-            id: 222,
+            id: -222,
+            id_positive: 1,
             name: "a".to_string(),
             ud: 777,
         };
