@@ -1,0 +1,24 @@
+[package]
+name = "ormlib"
+version = "0.1.0"
+edition = "2021"
+
+authors = ["Evgeny Igumnov <igumnovnsk@gmail.com>"]
+repository = "https://github.com/evgenyigumnov/orm-lib"
+license = "MIT"
+license-file = "../LICENSE"
+keywords = ["actor"]
+categories = ["library"]
+readme = "../README.md"
+description = "Indeed, an ORM library, not a framework, written in Rust"
+
+
+
+
+[dependencies]
+futures = "0.3.26"
+async-trait = "0.1.73"
+log = "0.4.17"
+thiserror = "1.0.47"
+tokio = { version = "1.25.0", features = ["full"] }
+
