@@ -56,7 +56,11 @@ impl ORM {
         qb
     }
 
-    pub fn findOne<T>(&self, query: String) -> QueryBuilder<Option<T>, T> {
+    pub fn findOne<T>(&self, query_where: String) -> QueryBuilder<Option<T>, T> {
+        // let table_name = data.name();
+
+        let query: String = format!("select * from table_name where {query_where}");
+
         let qb = QueryBuilder::<Option<T>, T> {
             query,
             entity: None,

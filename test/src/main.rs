@@ -67,8 +67,8 @@ mod tests {
             name: "John".to_string(),
         };
 
-        conn.insert(user.clone()).run().await?;
-        let user_opt: Option<User> = conn.findOne("id = 1".to_string()).run().await?;
+        let insert_id = conn.insert(user.clone()).run().await?;
+        let user_opt: Option<User> = conn.findOne(format!("id = {insert_id}")).run().await?;
         // let user_opt: Vec<User> = conn.findMany("id > 0".to_string()).run().await?;
         // let user_opt: Vec<User> = conn.findAll().limit(10).run().await?;
         // let updated_rows: i32 = conn.update(user.clone(), "id = 1".to_string()).run().await?;
