@@ -526,7 +526,7 @@ mod tests {
         let user = User {
             id: 1,
             name: "test".to_string(),
-            age: 0,
+            age: -1,
         };
 
         println!("{}", to_string(&user).unwrap())
