@@ -13,6 +13,8 @@
 
 mod serializer_error;
 mod serializer_all_types;
+mod serializer_all_values;
+mod serializer_key_values;
 
 use std::sync::Arc;
 

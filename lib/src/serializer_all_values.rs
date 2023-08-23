@@ -463,11 +463,9 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
         if !self.output.ends_with('(') {
             self.output += ",";
         }
-        // println!("key: {:?}", key);
         // key.serialize(&mut **self)?;
-        self.output += key;
-        // value.serialize(&mut **self);
-        Ok(())
+        // self.output += "::";
+        value.serialize(&mut **self)
     }
 
     fn end(self) -> Result<()> {
@@ -518,11 +516,11 @@ mod tests {
             id: u32,
             name: String,
         }
-
         let user = User {
             id: 1,
             name: "test".to_string(),
         };
+
 
         println!("{}", to_string(&user).unwrap())
     }
