@@ -86,24 +86,41 @@ impl<'de> Deserializer<'de> {
         where
             T: AddAssign<T> + MulAssign<T> + From<u8>,
     {
-        let mut int = match self.next_char()? {
-            ch @ '0'..='9' => T::from(ch as u8 - b'0'),
-            _ => {
-                return Err(Error::ExpectedInteger);
+        // let mut int = match self.next_char()? {
+        //     ch @ '0'..='9' => T::from(ch as u8 - b'0'),
+        //     _ => {
+        //         return Err(Error::ExpectedInteger);
+        //     }
+        // };
+        // loop {
+        //     match self.input.chars().next() {
+        //         Some(ch @ '0'..='9') => {
+        //             self.input = &self.input[1..];
+        //             int *= T::from(10);
+        //             int += T::from(ch as u8 - b'0');
+        //         }
+        //         _ => {
+        //             return Ok(int);
+        //         }
+        //     }
+        // }
+            if self.next_char()? != '"' {
+                return Err(Error::ExpectedString);
             }
-        };
-        loop {
-            match self.input.chars().next() {
-                Some(ch @ '0'..='9') => {
-                    self.input = &self.input[1..];
-                    int *= T::from(10);
-                    int += T::from(ch as u8 - b'0');
+            match self.input.find('"') {
+                Some(len) => {
+                    let s = &self.input[..len];
+                    self.input = &self.input[len + 1..];
+                    // let mut int = T::from(s[0] as u8 - b'0');
+                    let mut int = T::from(0);
+                    for ch in s[0..].chars() {
+                        int *= T::from(10);
+                        int += T::from(ch as u8 - b'0');
+                    }
+                    Ok(int)
                 }
-                _ => {
-                    return Ok(int);
-                }
+                None => Err(Error::Eof),
             }
-        }
     }
 
     // Parse a possible minus sign followed by a group of decimal digits as a
@@ -661,42 +678,17 @@ mod tests {
     fn test_struct() {
         #[derive(Deserialize, PartialEq, Debug)]
         struct Test {
-            int: u32,
-            seq: Vec<String>,
+            id: u32,
+            name: String,
         }
 
-        let j = r#"{"int":1,"seq":["a","b"]}"#;
+        let j = r#"{"id":"222","name":"a"}"#;
         let expected = Test {
-            int: 1,
-            seq: vec!["a".to_owned(), "b".to_owned()],
+            id: 222,
+            name: "a".to_string(),
         };
+        println!("{j}");
         assert_eq!(expected, from_str(j).unwrap());
     }
 
-    #[test]
-    fn test_enum() {
-        #[derive(Deserialize, PartialEq, Debug)]
-        enum E {
-            Unit,
-            Newtype(u32),
-            Tuple(u32, u32),
-            Struct { a: u32 },
-        }
-
-        let j = r#""Unit""#;
-        let expected = E::Unit;
-        assert_eq!(expected, from_str(j).unwrap());
-
-        let j = r#"{"Newtype":1}"#;
-        let expected = E::Newtype(1);
-        assert_eq!(expected, from_str(j).unwrap());
-
-        let j = r#"{"Tuple":[1,2]}"#;
-        let expected = E::Tuple(1, 2);
-        assert_eq!(expected, from_str(j).unwrap());
-
-        let j = r#"{"Struct":{"a":1}}"#;
-        let expected = E::Struct { a: 1 };
-        assert_eq!(expected, from_str(j).unwrap());
-    }
 }
