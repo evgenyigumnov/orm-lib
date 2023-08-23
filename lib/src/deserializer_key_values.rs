@@ -86,24 +86,6 @@ impl<'de> Deserializer<'de> {
         where
             T: AddAssign<T> + MulAssign<T> + From<u8>,
     {
-        // let mut int = match self.next_char()? {
-        //     ch @ '0'..='9' => T::from(ch as u8 - b'0'),
-        //     _ => {
-        //         return Err(Error::ExpectedInteger);
-        //     }
-        // };
-        // loop {
-        //     match self.input.chars().next() {
-        //         Some(ch @ '0'..='9') => {
-        //             self.input = &self.input[1..];
-        //             int *= T::from(10);
-        //             int += T::from(ch as u8 - b'0');
-        //         }
-        //         _ => {
-        //             return Ok(int);
-        //         }
-        //     }
-        // }
             if self.next_char()? != '"' {
                 return Err(Error::ExpectedString);
             }
@@ -125,13 +107,36 @@ impl<'de> Deserializer<'de> {
 
     // Parse a possible minus sign followed by a group of decimal digits as a
     // signed integer of type T.
+
+
     fn parse_signed<T>(&mut self) -> Result<T>
         where
-            T: Neg<Output = T> + AddAssign<T> + MulAssign<T> + From<i8>,
+            T: AddAssign<T> + MulAssign<T> + From<i8>,
     {
-        // Optional minus sign, delegate to `parse_unsigned`, negate if negative.
-        unimplemented!()
+        if self.next_char()? != '"' {
+            return Err(Error::ExpectedString);
+        }
+        match self.input.find('"') {
+            Some(len) => {
+                let s_src = &self.input[..len];
+                let s = if s_src.starts_with("-") {
+                    &s_src[1..]
+                } else {
+                    s_src
+                };
+                self.input = &self.input[len + 1..];
+                let mut int = T::from(0);
+                for ch in s[0..].chars() {
+                    int *= T::from(10);
+                    let rrr = ch as u8 - b'0';
+                    int += T::from(rrr as i8);
+                }
+                Ok(int)
+            }
+            None => Err(Error::Eof),
+        }
     }
+
 
     // Parse a string until the next '"' character.
     //
@@ -678,16 +683,18 @@ mod tests {
     fn test_struct() {
         #[derive(Deserialize, PartialEq, Debug)]
         struct Test {
-            id: u32,
+            id: i32,
             name: String,
+            ud: u64,
+
         }
 
-        let j = r#"{"id":"222","name":"a"}"#;
+        let j = r#"{"id":"-222","name":"a","ud":"777"}"#;
         let expected = Test {
             id: 222,
             name: "a".to_string(),
+            ud: 777,
         };
-        println!("{j}");
         assert_eq!(expected, from_str(j).unwrap());
     }
 
