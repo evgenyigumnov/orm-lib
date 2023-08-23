@@ -107,6 +107,7 @@ impl ORM {
     }
 
     pub fn query<T>(&self, query: String) -> QueryBuilder<Vec<T>, T> {
+        log::debug!("{}", query);
            let qb = QueryBuilder::<Vec<T>, T> {
             query,
             entity: None,
@@ -125,7 +126,9 @@ impl ORM {
     }
 
     pub fn protect(&self, value: String) -> String {
-        ORM::escape(value)
+        let protected: String = format!("\"{}\"", ORM::escape(value));
+        protected
+
     }
     pub fn escape(str:String) -> String {
         str

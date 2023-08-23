@@ -63,16 +63,17 @@ mod tests {
 
         let insert_id = conn.insert(user.clone()).run().await?;
         let user_opt: Option<User> = conn.findOne(format!("id = {insert_id}")).run().await?;
+        let query = format!("SELECT * FROM user WHERE name like {}", conn.protect("%oh%".to_string()));
+        let result_set: Vec<Row> = conn.query(query).run().await?;
+        for row in result_set {
+            let id = row.get::<i32>("id");
+            let name = row.get::<String>("name");
+        }
         // let user_opt: Vec<User> = conn.findMany("id > 0".to_string()).run().await?;
         // let user_opt: Vec<User> = conn.findAll().limit(10).run().await?;
         // let updated_rows: i32 = conn.update(user.clone(), "id = 1".to_string()).run().await?;
         //
-        // let query = format!("SELECT * FROM User WHERE name like {}", conn.protect("John".to_string()));
-        // let result_set: Vec<Row> = conn.query(query).run().await?;
-        // for row in result_set {
-        //     let id = row.get::<i32>("id");
-        //     let name = row.get::<String>("name");
-        // }
+
         // let query = "delete from User".to_string();
         // let updated_rows: i32 = conn.query_update(query).run().await?;
 
