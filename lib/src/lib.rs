@@ -60,10 +60,11 @@ impl ORM {
         qb
     }
 
-    pub fn findOne<T>(&self, query_where: String) -> QueryBuilder<Option<T>, T> {
-        // let table_name = data.name();
+    pub fn findOne<T: TableDeserialize>(&self, query_where: String) -> QueryBuilder<Option<T>, T> {
+        let table_name = T::same_name();
 
-        let query: String = format!("select * from table_name where {query_where}");
+        let query: String = format!("select * from {table_name} where {query_where}");
+        log::debug!("{}", query);
 
         let qb = QueryBuilder::<Option<T>, T> {
             query,
