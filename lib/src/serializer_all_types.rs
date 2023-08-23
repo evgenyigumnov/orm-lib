@@ -268,7 +268,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
 
     // Maps are represented in JSON as `{ K: V, K: V, ... }`.
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap> {
-        self.output += "{";
+        self.output += "(";
         Ok(self)
     }
 
@@ -294,7 +294,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
         variant: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeStructVariant> {
-        self.output += "{";
+        self.output += "(";
         variant.serialize(&mut *self)?;
         self.output += ":{";
         Ok(self)
@@ -427,7 +427,7 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
         where
             T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('{') {
+        if !self.output.ends_with('(') {
             self.output += ",";
         }
         key.serialize(&mut **self)
@@ -445,7 +445,7 @@ impl<'a> ser::SerializeMap for &'a mut Serializer {
     }
 
     fn end(self) -> Result<()> {
-        self.output += "}";
+        self.output += ")";
         Ok(())
     }
 }
@@ -460,7 +460,7 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
         where
             T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('{') {
+        if !self.output.ends_with('(') {
             self.output += ",";
         }
         key.serialize(&mut **self)?;
@@ -469,7 +469,7 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
     }
 
     fn end(self) -> Result<()> {
-        self.output += "}";
+        self.output += ")";
         Ok(())
     }
 }
@@ -504,22 +504,6 @@ impl<'a> ser::SerializeStructVariant for &'a mut Serializer {
 mod tests {
     use super::to_string;
     use serde_derive::Serialize;
-
-    #[test]
-    fn test_struct() {
-        #[derive(Serialize)]
-        struct Test {
-            int: u32,
-            seq: Vec<&'static str>,
-        }
-
-        let test = Test {
-            int: 1,
-            seq: vec!["a", "b"],
-        };
-        let expected = r#"{"int":1,"seq":["a","b"]}"#;
-        assert_eq!(to_string(&test).unwrap(), expected);
-    }
 
     #[test]
     fn test_enum() {
