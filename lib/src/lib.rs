@@ -62,8 +62,11 @@ impl ORM {
         todo!()
     }
 
-    pub fn protect(&self, value: &str) -> String {
-        todo!()
+    pub fn protect(&self, value: String) -> String {
+        ORM::escape(value)
+    }
+    pub fn escape(str:String) -> String {
+        str
     }
 
     pub async fn init(&self, script: String) -> Result<(), ORMError>  {
@@ -126,7 +129,7 @@ mod tests {
         conn.init(init_script).await?;
 
 
-        let query = format!("SELECT * FROM User WHERE name like {}", conn.protect("John"));
+        let query = format!("SELECT * FROM User WHERE name like {}", conn.protect("John".to_string()));
         let result_set: Vec<Row> = conn.query(query).run().await?;
         for row in result_set {
             let id = row.get::<i32>("id");

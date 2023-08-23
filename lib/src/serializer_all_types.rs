@@ -460,13 +460,13 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
         where
             T: ?Sized + Serialize,
     {
-        if !self.output.ends_with('(') {
-            self.output += ",";
+        if key != "id" {
+            if !self.output.ends_with('(') {
+                self.output += ",";
+            }
+            self.output += key;
+
         }
-        // println!("key: {:?}", key);
-        // key.serialize(&mut **self)?;
-        self.output += key;
-        // value.serialize(&mut **self);
         Ok(())
     }
 
@@ -517,11 +517,13 @@ mod tests {
         pub struct User {
             id: u32,
             name: String,
+            age: u32,
         }
 
         let user = User {
             id: 1,
             name: "test".to_string(),
+            age: 0,
         };
 
         println!("{}", to_string(&user).unwrap())
