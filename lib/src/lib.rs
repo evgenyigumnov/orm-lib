@@ -15,6 +15,7 @@ mod serializer_error;
 mod serializer_types;
 mod serializer_values;
 mod serializer_key_values;
+mod deserializer_key_values;
 use std::sync::Arc;
 use serde::Serialize;
 
