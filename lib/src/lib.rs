@@ -40,31 +40,59 @@ impl ORM {
         Arc::new(ORM {})
     }
     pub fn insert<T>(&self, data: T) -> QueryBuilder<i32> {
-        todo!()
+        let qb = QueryBuilder::<i32> {
+            query: "INSERT INTO ".to_string(),
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 
     pub fn findOne<T>(&self, query: String) -> QueryBuilder<Option<T>> {
-        todo!()
+        let qb = QueryBuilder::<Option<T>> {
+            query,
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 
     pub fn findMany<T>(&self, query: String) -> QueryBuilder<Vec<T>> {
-        todo!()
+        let qb = QueryBuilder::<Vec<T>> {
+            query,
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 
     pub fn findAll<T>(&self) -> QueryBuilder<Vec<T>> {
-        todo!()
+        let qb = QueryBuilder::<Vec<T>> {
+            query: "SELECT * FROM ".to_string(),
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 
     pub fn update<T>(&self, data: T, query: String) -> QueryBuilder<i32> {
-        todo!()
+        let qb = QueryBuilder::<i32> {
+            query,
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 
     pub fn query<T>(&self, query: String) -> QueryBuilder<Vec<T>> {
-        todo!()
+           let qb = QueryBuilder::<Vec<T>> {
+            query,
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 
     pub fn query_update(&self, query: String) -> QueryBuilder<i32> {
-        todo!()
+        let qb = QueryBuilder::<i32> {
+            query,
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 
     pub fn protect(&self, value: String) -> String {
@@ -75,7 +103,7 @@ impl ORM {
     }
 
     pub async fn init(&self, script: String) -> Result<(), ORMError>  {
-        todo!()
+        Ok(())
     }
 }
 
@@ -85,24 +113,30 @@ pub struct QueryBuilder<T> {
 }
 
 impl QueryBuilder<i32> {
-    pub async fn run<i32>(&self) -> Result<i32, ORMError> {
-        todo!()
+    pub async fn run(&self) -> Result<i32, ORMError> {
+        let r:i32  = 1;
+        Ok(r)
     }
 }
 
 impl<Z> QueryBuilder<Option<Z>> {
     pub async fn run(&self) -> Result<Option<Z>, ORMError> {
-        todo!()
+        Ok(None)
     }
 }
 
 impl<Z> QueryBuilder<Vec<Z>> {
     pub async fn run(&self) -> Result<Vec<Z>, ORMError> {
-        todo!()
+        Ok(Vec::new())
     }
 
     pub fn limit(&self, limit: i32) -> QueryBuilder<Vec<Z>> {
-        todo!()
+
+        let qb =  QueryBuilder::<Vec<Z>> {
+            query: format!("{} LIMIT {}", self.query, limit),
+            phantom: std::marker::PhantomData,
+        };
+        qb
     }
 }
 
