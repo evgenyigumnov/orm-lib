@@ -63,7 +63,7 @@ mod tests {
 
         let insert_id = conn.insert(user.clone()).run().await?;
         let user_opt: Option<User> = conn.findOne(format!("id = {insert_id}")).run().await?;
-        let query = format!("SELECT * FROM user WHERE name like {}", conn.protect("%oh%".to_string()));
+        let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
         let result_set: Vec<Row> = conn.query(query).run().await?;
         for row in result_set {
             let id = row.get::<i32>("id");
