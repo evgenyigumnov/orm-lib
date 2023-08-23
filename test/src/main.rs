@@ -38,7 +38,7 @@ mod tests {
     #[tokio::test]
     async fn test() -> Result<(), ORMError> {
 
-        #[derive(TableDeserialize, TableSerialize , Serialize, Debug, Clone)]
+        #[derive(TableDeserialize, TableSerialize, Serialize, Debug, Clone)]
         #[table(name = "user")]
         pub struct User {
             pub id: i32,
