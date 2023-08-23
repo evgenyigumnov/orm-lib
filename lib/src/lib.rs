@@ -16,6 +16,7 @@ mod serializer_types;
 mod serializer_values;
 mod serializer_key_values;
 use std::sync::Arc;
+use serde::Serialize;
 
 use thiserror::Error;
 
@@ -39,9 +40,16 @@ impl ORM {
     pub fn connect(url: String) -> Arc<ORM> {
         Arc::new(ORM {})
     }
-    pub fn insert<T>(&self, data: T) -> QueryBuilder<i32, T> {
-        let qb = QueryBuilder::<i32, T> {
-            query: "INSERT INTO ".to_string(),
+    pub fn insert<T>(&self, data: T) -> QueryBuilder<i32, T>
+    where T: Table + Serialize + 'static
+    {
+        let table_name = data.name();
+        let types = serializer_types::to_string(&data).unwrap();
+        let values = serializer_values::to_string(&data).unwrap();
+        let query: String = format!("insert into {table_name} {types} values {values}");
+        log::debug!("{}", query);
+        let qb = QueryBuilder::<i32,T> {
+            query: "insert into  ".to_string(),
             entity: Some(data),
             phantom: std::marker::PhantomData,
         };
@@ -120,14 +128,14 @@ pub struct QueryBuilder<T,V> {
     phantom: std::marker::PhantomData<T>,
 }
 
-impl QueryBuilder<i32, Box<dyn Table>> {
+impl<T> QueryBuilder<i32,T> {
     pub async fn run(&self) -> Result<i32, ORMError> {
         let r:i32  = 1;
         Ok(r)
     }
 }
 
-impl<Z> QueryBuilder<Option<Z>, Box<dyn Table>> {
+impl<Z, T> QueryBuilder<Option<Z>,T> {
     pub async fn run(&self) -> Result<Option<Z>, ORMError> {
         Ok(None)
     }
