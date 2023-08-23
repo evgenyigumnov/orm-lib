@@ -17,6 +17,8 @@ mod serializer_values;
 mod serializer_key_values;
 mod deserializer_key_values;
 
+use rusqlite::{Connection, Result};
+
 use std::fmt::Debug;
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
@@ -27,6 +29,8 @@ use thiserror::Error;
 pub enum ORMError {
     #[error("std::io::Error")]
     StdError(#[from] std::io::Error),
+    #[error("rusqlite::Error")]
+    RusqliteError(#[from] rusqlite::Error),
     #[error("unknown error")]
     Unknown,
 }
@@ -41,11 +45,14 @@ pub trait TableDeserialize {
         "Test".to_string()
     }
 }
-pub struct ORM {}
+pub struct ORM {
+    conn: Connection,
+}
 
 impl ORM {
-    pub fn connect(url: String) -> Arc<ORM> {
-        Arc::new(ORM {})
+    pub fn connect(url: String) -> Result<Arc<ORM>, ORMError> {
+        let conn = Connection::open(url)?;
+        Ok(Arc::new(ORM { conn }))
     }
     pub fn insert<T>(&self, data: T) -> QueryBuilder<i32, T>
     where T: TableDeserialize + TableSerialize + Serialize + 'static
@@ -135,6 +142,9 @@ impl ORM {
     }
 
     pub async fn init(&self, script: String) -> Result<(), ORMError>  {
+        let query = std::fs::read_to_string(script)?;
+        let updated_rows: i32 = self.query_update(query).run().await?;
+
         Ok(())
     }
 }
