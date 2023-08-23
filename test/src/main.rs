@@ -45,8 +45,6 @@ mod tests {
             pub name: String,
         }
 
-
-
         let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
         let conn = ORM::connect("file.db".to_string());
         let init_script = "create_table_1.sql".to_string();
