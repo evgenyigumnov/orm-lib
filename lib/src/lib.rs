@@ -23,7 +23,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum ORMError {
     #[error("std::io::Error")]
-    Disconnect(#[from] std::io::Error),
+    StdError(#[from] std::io::Error),
     #[error("unknown error")]
     Unknown,
 }
