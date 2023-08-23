@@ -16,8 +16,10 @@ mod serializer_types;
 mod serializer_values;
 mod serializer_key_values;
 mod deserializer_key_values;
+
+use std::fmt::Debug;
 use std::sync::Arc;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use thiserror::Error;
 
@@ -61,7 +63,9 @@ impl ORM {
         qb
     }
 
-    pub fn findOne<T: TableDeserialize>(&self, query_where: String) -> QueryBuilder<Option<T>, T> {
+    pub fn findOne<T: TableDeserialize>(&self, query_where: String) -> QueryBuilder<Option<T>, T>
+    where T: TableDeserialize + TableSerialize + for<'a> Deserialize<'a> + 'static
+    {
         let table_name = T::same_name();
 
         let query: String = format!("select * from {table_name} where {query_where}");
@@ -145,9 +149,14 @@ impl<T> QueryBuilder<i32,T> {
     }
 }
 
-impl<Z, T> QueryBuilder<Option<Z>,T> {
+impl<Z, T> QueryBuilder<Option<Z>,T>
+where Z: for<'a> Deserialize<'a> + Debug + 'static
+{
     pub async fn run(&self) -> Result<Option<Z>, ORMError> {
-        Ok(None)
+        let user_str = r#"{"id":"1","name":"John"}"#.to_string();
+        let user: Z = deserializer_key_values::from_str(&user_str).unwrap();
+        log::debug!("{:?}", user);
+        Ok(Some(user))
     }
 }
 
