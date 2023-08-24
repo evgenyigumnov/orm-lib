@@ -117,14 +117,14 @@ impl ORM {
         let conn = Connection::open(url)?;
         Ok(Arc::new(ORM { conn }))
     }
-    pub fn insert<T>(&self, data: T) -> QueryBuilder<i32, T>
+    pub fn insert<T>(&self, data: T) -> QueryBuilder<usize, T>
     where T: TableDeserialize + TableSerialize + Serialize + 'static
     {
         let table_name = data.name();
         let types = serializer_types::to_string(&data).unwrap();
         let values = serializer_values::to_string(&data).unwrap();
         let query: String = format!("insert into {table_name} {types} values {values}");
-        let qb = QueryBuilder::<i32,T> {
+        let qb = QueryBuilder::<usize,T> {
             query: query,
             entity: Some(data),
             orm: self,
@@ -194,8 +194,8 @@ impl ORM {
         qb
     }
 
-    pub fn query_update(&self, query: String) -> QueryBuilder<i32, ()> {
-        let qb = QueryBuilder::<i32, ()> {
+    pub fn query_update(&self, query: String) -> QueryBuilder<usize, ()> {
+        let qb = QueryBuilder::<usize, ()> {
             query,
             entity: None,
             orm: self,
@@ -215,7 +215,7 @@ impl ORM {
 
     pub async fn init(&self, script: String) -> Result<(), ORMError>  {
         let query = std::fs::read_to_string(script)?;
-        let updated_rows: i32 = self.query_update(query).run().await?;
+        let updated_rows: usize = self.query_update(query).run().await?;
 
         Ok(())
     }
@@ -228,11 +228,11 @@ pub struct QueryBuilder<'a, T, V> {
     phantom: std::marker::PhantomData<T>,
 }
 
-impl<T> QueryBuilder<'_, i32,T> {
-    pub async fn run(&self) -> Result<i32, ORMError> {
+impl<T> QueryBuilder<'_, usize,T> {
+    pub async fn run(&self) -> Result<usize, ORMError> {
         log::debug!("{}", self.query);
         let r = self.orm.conn.execute(self.query.as_str(),(),)?;
-        Ok(1)
+        Ok(r)
     }
 }
 
