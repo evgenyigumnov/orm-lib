@@ -77,8 +77,7 @@ mod tests {
         }
 
 
-        // let user_opt: Option<User> = conn.findOne(format!("id = {insert_id}")).run().await?;
-        let user_opt: Option<User> = conn.findOne(format!("id = 2")).run().await?;
+        let user_opt: Option<User> = conn.findOne(format!("id = {insert_id}")).run().await?;
         log::debug!("{:?}", user_opt);
         let user = User {
             id: 0,
