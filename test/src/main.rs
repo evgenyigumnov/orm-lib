@@ -12,7 +12,7 @@ async fn main() -> Result<(), ORMError> {
 mod tests {
     use serde_derive::{Deserialize, Serialize};
     use orm_derive::TableDeserialize;
-    use ormlib::TableDeserialize;
+    use ormlib::{RowTrait, TableDeserialize};
     use orm_derive::TableSerialize;
     use ormlib::TableSerialize;
     use ormlib::ORMError;
@@ -45,6 +45,12 @@ mod tests {
             pub name: String,
         }
 
+        // if file file.db exists, it will be deleted
+        let file = std::path::Path::new("file.db");
+        if file.exists() {
+            std::fs::remove_file(file)?;
+        }
+
         let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
         let conn = ORM::connect("file.db".to_string())?;
         let init_script = "create_table_1.sql".to_string();
@@ -52,8 +58,8 @@ mod tests {
         let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
         let result_set: Vec<Row> = conn.query(query).run().await?;
         for row in result_set {
-            let id = row.get::<i32>("id");
-            let name = row.get::<String>("name");
+            let id: i32 = row.get("id");
+            let name:String = row.get("name");
         }
         let user = User {
             id: 0,

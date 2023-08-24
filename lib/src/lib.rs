@@ -49,6 +49,18 @@ pub struct ORM {
     conn: Connection,
 }
 
+pub struct Row;
+pub trait RowTrait {
+    fn get<T>(&self, name: &str) -> T;
+}
+
+impl RowTrait for Row {
+    fn get<Z>(&self, name: &str) -> Z {
+        todo!()
+    }
+}
+
+
 impl ORM {
     pub fn connect(url: String) -> Result<Arc<ORM>, ORMError> {
         let conn = Connection::open(url)?;
@@ -65,6 +77,7 @@ impl ORM {
         let qb = QueryBuilder::<i32,T> {
             query: "insert into  ".to_string(),
             entity: Some(data),
+            orm: self,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -81,6 +94,7 @@ impl ORM {
         let qb = QueryBuilder::<Option<T>, T> {
             query,
             entity: None,
+            orm: self,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -90,6 +104,7 @@ impl ORM {
         let qb = QueryBuilder::<Vec<T>, T> {
             query,
             entity: None,
+            orm: self,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -99,6 +114,7 @@ impl ORM {
         let qb = QueryBuilder::<Vec<T>, ()> {
             query: "SELECT * FROM ".to_string(),
             entity: None,
+            orm: self,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -108,6 +124,7 @@ impl ORM {
         let qb = QueryBuilder::<i32, T> {
             query,
             entity: Some(data),
+            orm: self,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -118,6 +135,7 @@ impl ORM {
            let qb = QueryBuilder::<Vec<T>, T> {
             query,
             entity: None,
+            orm: self,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -127,6 +145,7 @@ impl ORM {
         let qb = QueryBuilder::<i32, ()> {
             query,
             entity: None,
+            orm: self,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -149,20 +168,23 @@ impl ORM {
     }
 }
 
-pub struct QueryBuilder<T,V> {
+pub struct QueryBuilder<'a, T, V> {
     query: String,
     entity: Option<V>,
+    orm: &'a ORM,
     phantom: std::marker::PhantomData<T>,
 }
 
-impl<T> QueryBuilder<i32,T> {
+impl<T> QueryBuilder<'_, i32,T> {
     pub async fn run(&self) -> Result<i32, ORMError> {
+        log::debug!("{}", self.query);
+        self.orm.conn.execute(self.query.as_str(),(),)?;
         let r:i32  = 1;
         Ok(r)
     }
 }
 
-impl<Z, T> QueryBuilder<Option<Z>,T>
+impl<Z, T> QueryBuilder<'_, Option<Z>,T>
 where Z: for<'a> Deserialize<'a> + Debug + 'static
 {
     pub async fn run(&self) -> Result<Option<Z>, ORMError> {
@@ -173,16 +195,30 @@ where Z: for<'a> Deserialize<'a> + Debug + 'static
     }
 }
 
-impl<Z> QueryBuilder<Vec<Z>,Z> {
-    pub async fn run(&self) -> Result<Vec<Z>, ORMError> {
+impl<R> QueryBuilder<'_, Vec<R>,R> {
+    pub async fn run(&self) -> Result<Vec<R>, ORMError>
+    where R: From<Row>
+    {
+        log::debug!("{}", self.query);
+        let mut stmt = self.orm.conn.prepare( self.query.as_str())?;
+        let mut result: Vec<Row> = Vec::new();
+        let person_iter = stmt.query_map([], |row| {
+             // let r:String = row.get(0)?;
+
+            let r: Row = Row;
+            result.push(r);
+            Ok(())
+        })?;
+
         Ok(Vec::new())
     }
 
-    pub fn limit(&self, limit: i32) -> QueryBuilder<Vec<Z>, ()> {
+    pub fn limit(&self, limit: i32) -> QueryBuilder<Vec<Row>, ()> {
 
-        let qb =  QueryBuilder::<Vec<Z>, ()> {
+        let qb =  QueryBuilder::<Vec<Row>, ()> {
             query: format!("{} LIMIT {}", self.query, limit),
             entity: None,
+            orm: self.orm,
             phantom: std::marker::PhantomData,
         };
         qb
@@ -190,13 +226,6 @@ impl<Z> QueryBuilder<Vec<Z>,Z> {
 }
 
 
-pub struct Row;
-
-impl Row {
-    pub fn get<T>(&self, name: &str) -> T {
-        todo!()
-    }
-}
 
 
 #[cfg(test)]

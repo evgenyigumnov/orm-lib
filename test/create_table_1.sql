@@ -1,4 +1,4 @@
-create table user {
-    id integer  primary key autoincrement,
-    name varchar(20)
-}
+CREATE TABLE user (
+                        id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name  TEXT NOT NULL
+)
