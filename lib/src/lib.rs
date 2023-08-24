@@ -190,10 +190,17 @@ impl ORM {
         qb
     }
 
-    pub fn update<T>(&self, data: T, query: String) -> QueryBuilder<i32, T> {
-        let qb = QueryBuilder::<i32, T> {
+    pub fn update<T>(&self, data: T, query_where: String) -> QueryBuilder<usize, ()>
+        where T: TableDeserialize + TableSerialize + Serialize + 'static
+    {
+        let table_name = data.name();
+        let key_value_str = serializer_key_values::to_string(&data).unwrap();
+        // remove first and last char
+        let key_value = &key_value_str[1..key_value_str.len()-1];
+        let query: String = format!("update {table_name} set {key_value} where {query_where}");
+        let qb = QueryBuilder::<usize, ()> {
             query,
-            entity: Some(data),
+            entity: None,
             orm: self,
             phantom: std::marker::PhantomData,
         };
@@ -260,6 +267,15 @@ impl<T> QueryBuilder<'_, i64,T> {
         Ok(r)
     }
 }
+
+impl<T> QueryBuilder<'_, usize,T> {
+    pub async fn run(&self) -> Result<usize, ORMError> {
+        log::debug!("{}", self.query);
+        let r = self.orm.conn.execute(self.query.as_str(),(),)?;
+        Ok(r)
+    }
+}
+
 
 impl<T> QueryBuilder<'_, Option<T>,T>
 where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static

@@ -92,9 +92,9 @@ mod tests {
         log::debug!("{:?}", user_vec);
         let user_vec: Vec<User> = conn.findAll().run().await?;
         log::debug!("{:?}", user_vec);
-        // let updated_rows: i32 = conn.update(user.clone(), "id = 1".to_string()).run().await?;
-        //
-
+        let updated_rows: usize = conn.update(user.clone(), "id = 1".to_string()).run().await?;
+        let user_vec: Vec<User> = conn.findAll().run().await?;
+        log::debug!("{:?}", user_vec);
         let query = "delete from user".to_string();
         let updated_rows = conn.query_update(query).exec().await?;
         log::debug!("updated_rows: {}", updated_rows);
