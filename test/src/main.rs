@@ -95,10 +95,9 @@ mod tests {
         // let updated_rows: i32 = conn.update(user.clone(), "id = 1".to_string()).run().await?;
         //
 
-        // let query = "delete from User".to_string();
-        // let updated_rows: i32 = conn.query_update(query).run().await?;
-
-
+        let query = "delete from user".to_string();
+        let updated_rows = conn.query_update(query).exec().await?;
+        log::debug!("updated_rows: {}", updated_rows);
         Ok(())
     }
 }
