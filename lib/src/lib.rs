@@ -146,7 +146,6 @@ impl ORM {
         let table_name = T::same_name();
 
         let query: String = format!("select * from {table_name} where {query_where}");
-        log::debug!("{}", query);
 
         let qb = QueryBuilder::<Option<T>, T> {
             query,
@@ -266,12 +265,8 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
                     i = i + 1;
                 }
             }
-            println!("{:?}", column_str);
-            let user_str = r#"{"id":"1","name":"John"}"#.to_string();
+            let user_str = format!("{{{}}}", column_str.join(","));
             let user: T = deserializer_key_values::from_str(&user_str).unwrap();
-
-            log::debug!("{:?}", user);
-
             Ok(Some(user))
 
         }
