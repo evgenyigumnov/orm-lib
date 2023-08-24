@@ -123,7 +123,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     // contains a '"' character.
     fn serialize_str(self, v: &str) -> Result<()> {
         self.output += "\"";
-        self.output += ORM::escape(v.to_string()).as_str();
+        self.output += ORM::escape(v).as_str();
         self.output += "\"";
         Ok(())
     }

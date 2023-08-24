@@ -140,7 +140,7 @@ impl ORM {
         self.conn.last_insert_rowid()
     }
 
-    pub fn find_one<T: TableDeserialize>(&self, query_where: String) -> QueryBuilder<Option<T>, T>
+    pub fn find_one<T: TableDeserialize>(&self, query_where: &str) -> QueryBuilder<Option<T>, T>
     where T: TableDeserialize + TableSerialize + for<'a> Deserialize<'a> + 'static
     {
         let table_name = T::same_name();
@@ -156,7 +156,7 @@ impl ORM {
         qb
     }
 
-    pub fn find_many<T>(&self, query_where: String) -> QueryBuilder<Vec<T>, T>
+    pub fn find_many<T>(&self, query_where: &str) -> QueryBuilder<Vec<T>, T>
         where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
 
     {
@@ -189,7 +189,7 @@ impl ORM {
         qb
     }
 
-    pub fn update<T>(&self, data: T, query_where: String) -> QueryBuilder<usize, ()>
+    pub fn update<T>(&self, data: T, query_where: &str) -> QueryBuilder<usize, ()>
         where T: TableDeserialize + TableSerialize + Serialize + 'static
     {
         let table_name = data.name();
@@ -206,9 +206,9 @@ impl ORM {
         qb
     }
 
-    pub fn query<T>(&self, query: String) -> QueryBuilder<Vec<T>, T> {
+    pub fn query<T>(&self, query: &str) -> QueryBuilder<Vec<T>, T> {
            let qb = QueryBuilder::<Vec<T>, T> {
-            query,
+            query: query.to_string(),
             entity: std::marker::PhantomData,
             orm: self,
             result: std::marker::PhantomData,
@@ -216,9 +216,9 @@ impl ORM {
         qb
     }
 
-    pub fn query_update(&self, query: String) -> QueryBuilder<usize, ()> {
+    pub fn query_update(&self, query: &str) -> QueryBuilder<usize, ()> {
         let qb = QueryBuilder::<usize, ()> {
-            query,
+            query: query.to_string(),
             entity: std::marker::PhantomData,
             orm: self,
             result: std::marker::PhantomData,
@@ -226,18 +226,18 @@ impl ORM {
         qb
     }
 
-    pub fn protect(&self, value: String) -> String {
+    pub fn protect(&self, value: &str) -> String {
         let protected: String = format!("\"{}\"", ORM::escape(value));
         protected
 
     }
-    pub fn escape(str:String) -> String {
-        str
+    pub fn escape(str: &str) -> String {
+        str.to_string()
     }
 
-    pub async fn init(&self, script: String) -> Result<(), ORMError>  {
+    pub async fn init(&self, script: &str) -> Result<(), ORMError>  {
         let query = std::fs::read_to_string(script)?;
-        let _updated_rows: usize = self.query_update(query).exec().await?;
+        let _updated_rows: usize = self.query_update(query.as_str()).exec().await?;
 
         Ok(())
     }
@@ -281,7 +281,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
 {
     pub async fn run(&self) -> Result<Option<T>, ORMError> {
 
-        let rows  = self.orm.query(self.query.clone()).exec().await?;
+        let rows  = self.orm.query(self.query.clone().as_str()).exec().await?;
         let columns: Vec<String> =T::fields();
         if rows.len() == 0 {
             return Ok(None);
@@ -368,7 +368,7 @@ impl<T> QueryBuilder<'_, Vec<T>,T> {
     {
 
         let mut result: Vec<T> = Vec::new();
-        let rows  = self.orm.query(self.query.clone()).exec().await?;
+        let rows  = self.orm.query(self.query.clone().as_str()).exec().await?;
         let columns: Vec<String> =T::fields();
             for row in rows {
                 let mut column_str: Vec<String> = Vec::new();
