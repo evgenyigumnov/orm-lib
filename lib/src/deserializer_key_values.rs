@@ -149,18 +149,34 @@ impl<'de> Deserializer<'de> {
     //
     // Makes no attempt to handle escape sequences. What did you expect? This is
     // example code!
+
     fn parse_string(&mut self) -> Result<&'de str> {
         if self.next_char()? != '"' {
             return Err(Error::ExpectedString);
         }
-        match self.input.find('"') {
-            Some(len) => {
-                let s = &self.input[..len];
-                self.input = &self.input[len + 1..];
-                Ok(s)
+
+        let mut start_idx = 0;
+        let mut end_idx = 0;
+        let mut is_escaped = false;
+
+        for (idx, char) in self.input.char_indices() {
+            if is_escaped {
+                is_escaped = false;
+            } else if char == '\\' {
+                is_escaped = true;
+            } else if char == '"' {
+                end_idx = idx;
+                break;
             }
-            None => Err(Error::Eof),
         }
+
+        if end_idx == 0 {
+            return Err(Error::Eof);
+        }
+
+        let s = &self.input[start_idx..end_idx];
+        self.input = &self.input[end_idx + 1..];
+        Ok(s)
     }
 }
 

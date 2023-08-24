@@ -78,13 +78,19 @@ mod tests {
 
         let user_opt: Option<User> = conn.find_one(format!("id = {insert_id}").as_str()).run().await?;
         log::debug!("{:?}", user_opt);
+        let input = r#"Hello 'world'
+         and "universe""#;
+
         let user = User {
             id: 0,
-            name: None,
+            name: Some(input.to_string()),
             age: 40,
         };
         let insert_id:i64 = conn.insert(user.clone()).run().await?;
         log::debug!("insert_id: {}", insert_id);
+        let user_opt: Option<User> = conn.find_one(format!("id = 3").as_str()).run().await?;
+        // assert_eq!(user_opt.unwrap().name.unwrap(), input);
+
 
 
         let user_vec: Vec<User> = conn.find_many("id > 0").limit(2).run().await?;

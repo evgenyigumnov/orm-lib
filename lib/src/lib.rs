@@ -232,7 +232,42 @@ impl ORM {
 
     }
     pub fn escape(str: &str) -> String {
-        str.to_string()
+        let mut escaped = String::new();
+
+        for c in str.chars() {
+            match c {
+                // '\'' => escaped.push_str("\\'"),
+                '"' => escaped.push_str("\"\""),
+                // '\\' => escaped.push_str("\\\\"),
+                // '\n' => escaped.push_str("\\n"),
+                // '\r' => escaped.push_str("\\r"),
+                // '\t' => escaped.push_str("\\t"),
+                // '\x08' => escaped.push_str("\\b"),
+                // '\x0C' => escaped.push_str("\\f"),
+                _ => escaped.push(c),
+            }
+        }
+
+        escaped
+    }
+
+    fn escape_json(input: &str) -> String {
+        let mut escaped = String::new();
+
+        for c in input.chars() {
+            match c {
+                '"' => escaped.push_str("\\\""),
+                // '\\' => escaped.push_str("\\\\"),
+                // '\n' => escaped.push_str("\\n"),
+                // '\r' => escaped.push_str("\\r"),
+                // '\t' => escaped.push_str("\\t"),
+                // '\x08' => escaped.push_str("\\b"),
+                // '\x0C' => escaped.push_str("\\f"),
+                _ => escaped.push(c),
+            }
+        }
+
+        escaped
     }
 
     pub async fn init(&self, script: &str) -> Result<(), ORMError>  {
@@ -293,7 +328,10 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
                     let value_opt:Option<String> = row.get(i);
                     let value = match value_opt {
                         Some(v) => {
-                            format!("\"{}\"", v.to_string())
+                            // format!("\"{}\"", ORM::escape_json(v.as_str()))
+                            let a = v.replace("\\\"", "\"");
+                            log::debug!("!!!!: {}", a);
+                            format!("\"{}\"", ORM::escape_json(a.as_str()))
                         }
                         None => {
                             "null".to_string()
@@ -377,7 +415,7 @@ impl<T> QueryBuilder<'_, Vec<T>,T> {
                     let value_opt:Option<String> = row.get(i);
                     let value = match value_opt {
                         Some(v) => {
-                            format!("\"{}\"", v.to_string())
+                            format!("\"{}\"", ORM::escape_json(v.as_str()))
                         }
                         None => {
                             "null".to_string()
@@ -387,7 +425,9 @@ impl<T> QueryBuilder<'_, Vec<T>,T> {
                     i = i + 1;
                 }
                 let user_str = format!("{{{}}}", column_str.join(","));
+                log::debug!("{}", user_str);
                 let user: T = deserializer_key_values::from_str(&user_str).unwrap();
+
                 result.push(user);
             }
 
