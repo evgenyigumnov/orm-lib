@@ -58,8 +58,8 @@ mod tests {
         let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
         let result_set: Vec<Row> = conn.query(query).run().await?;
         for row in result_set {
-            let id: i32 = row.get("id");
-            let name:String = row.get("name");
+            let id: i32 = row.get("id").unwrap();
+            let name: String = row.get("name").unwrap();
         }
         let user = User {
             id: 0,

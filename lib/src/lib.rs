@@ -17,9 +17,11 @@ mod serializer_values;
 mod serializer_key_values;
 mod deserializer_key_values;
 
+use std::collections::HashMap;
 use rusqlite::{Connection, Result};
 
 use std::fmt::Debug;
+use std::str::FromStr;
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
@@ -49,14 +51,62 @@ pub struct ORM {
     conn: Connection,
 }
 
-pub struct Row;
+pub struct Row {
+    pub columns: HashMap<String,Option<String>>,
+}
 pub trait RowTrait {
-    fn get<T>(&self, name: &str) -> T;
+    fn get<T: FromStr>(&self, name: &str) -> Option<T>;
+    fn set<T: ToString>(&mut self, name: String, value: Option<T>);
+}
+impl Row {
+    pub fn new() -> Self {
+        let columns = HashMap::new();
+        Row {
+            columns
+        }
+    }
 }
 
 impl RowTrait for Row {
-    fn get<Z>(&self, name: &str) -> Z {
-        todo!()
+    fn get<Z: FromStr>(&self, name: &str) -> Option<Z>
+    {
+        let value = self.columns.get(name);
+        match value {
+            Some(v_opt) => {
+                match v_opt {
+                    None => {
+                        None
+                    }
+                    Some(v) => {
+                        let r = Z::from_str(v.as_str());
+                        match r {
+                            Ok(res) => {
+                                Some(res)
+                            }
+                            Err(_) => {
+                                None
+                            }
+                        }
+                    }
+                }
+
+            }
+            None => {
+                None
+            }
+        }
+    }
+
+    fn set<T: ToString>(&mut self, name: String, value: Option<T>) {
+        let value = match value {
+            Some(v) => {
+                Some(v.to_string())
+            }
+            None => {
+                None
+            }
+        };
+        self.columns.insert(name.to_string(), value);
     }
 }
 
@@ -203,10 +253,23 @@ impl<R> QueryBuilder<'_, Vec<R>,R> {
         let mut stmt = self.orm.conn.prepare( self.query.as_str())?;
         let mut result: Vec<Row> = Vec::new();
         let person_iter = stmt.query_map([], |row| {
-             // let r:String = row.get(0)?;
+            let mut i = 0;
+            loop {
+                let res: rusqlite::Result<Option<String>>= row.get(i);
+                match  res{
+                    Ok(v) => {
+                        let mut r: Row = Row::new();
+                        r.set(i.to_string(), v);
+                        result.push(r);
 
-            let r: Row = Row;
-            result.push(r);
+                    }
+                    Err(_) => {
+                        break;
+                    }
+                }
+                i = i + 1;
+            }
+
             Ok(())
         })?;
 
