@@ -26,6 +26,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use thiserror::Error;
+use crate::serializer_types::to_string;
 
 #[derive(Error, Debug)]
 pub enum ORMError {
@@ -156,7 +157,15 @@ impl ORM {
         qb
     }
 
-    pub fn findMany<T>(&self, query: String) -> QueryBuilder<Vec<T>, T> {
+    pub fn findMany<T>(&self, query_where: String) -> QueryBuilder<Vec<T>, T>
+        where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
+
+    {
+
+        let table_name = T::same_name();
+
+        let query: String = format!("select * from {table_name} where {query_where}");
+
         let qb = QueryBuilder::<Vec<T>, T> {
             query,
             entity: None,
@@ -217,7 +226,7 @@ impl ORM {
 
     pub async fn init(&self, script: String) -> Result<(), ORMError>  {
         let query = std::fs::read_to_string(script)?;
-        let updated_rows: usize = self.query_update(query).run().await?;
+        let updated_rows: usize = self.query_update(query).exec().await?;
 
         Ok(())
     }
@@ -231,7 +240,7 @@ pub struct QueryBuilder<'a, T, V> {
 }
 
 impl<T> QueryBuilder<'_, usize,T> {
-    pub async fn run(&self) -> Result<usize, ORMError> {
+    pub async fn exec(&self) -> Result<usize, ORMError> {
         log::debug!("{}", self.query);
         let r = self.orm.conn.execute(self.query.as_str(),(),)?;
         Ok(r)
@@ -252,7 +261,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
 {
     pub async fn run(&self) -> Result<Option<T>, ORMError> {
 
-        let rows  = self.orm.query(self.query.clone()).run().await?;
+        let rows  = self.orm.query(self.query.clone()).exec().await?;
         let columns: Vec<String> =T::fields();
         if rows.len() == 0 {
             return Ok(None);
@@ -284,7 +293,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
 }
 
 impl<R> QueryBuilder<'_, Vec<Row>,R> {
-    pub async fn run(&self) -> Result<Vec<Row>, ORMError>
+    pub async fn exec(&self) -> Result<Vec<Row>, ORMError>
     {
         log::debug!("{}", self.query);
         let mut stmt = self.orm.conn.prepare( self.query.as_str())?;
@@ -330,9 +339,44 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
         Ok(result)
     }
 
-    pub fn limit(&self, limit: i32) -> QueryBuilder<Vec<Row>, ()> {
 
-        let qb =  QueryBuilder::<Vec<Row>, ()> {
+}
+
+impl<T> QueryBuilder<'_, Vec<T>,T> {
+    pub async fn run(&self) -> Result<Vec<T>, ORMError>
+        where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
+    {
+
+        let mut result: Vec<T> = Vec::new();
+        let rows  = self.orm.query(self.query.clone()).exec().await?;
+        let columns: Vec<String> =T::fields();
+            for row in rows {
+                let mut column_str: Vec<String> = Vec::new();
+                let mut i = 0;
+                for column in columns.iter() {
+                    let value_opt:Option<String> = row.get(i);
+                    let value = match value_opt {
+                        Some(v) => {
+                            format!("\"{}\"", v.to_string())
+                        }
+                        None => {
+                            "null".to_string()
+                        }
+                    };
+                    column_str.push(format!("\"{}\":{}", column, value));
+                    i = i + 1;
+                }
+                let user_str = format!("{{{}}}", column_str.join(","));
+                let user: T = deserializer_key_values::from_str(&user_str).unwrap();
+                result.push(user);
+            }
+
+            Ok(result)
+    }
+
+    pub fn limit(&self, limit: i32) -> QueryBuilder<Vec<T>, T> {
+
+        let qb =  QueryBuilder::<Vec<T>,T> {
             query: format!("{} LIMIT {}", self.query, limit),
             entity: None,
             orm: self.orm,

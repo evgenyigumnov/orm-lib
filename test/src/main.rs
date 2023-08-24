@@ -66,10 +66,10 @@ mod tests {
         conn.init(init_script).await?;
         let insert_id: i64 = conn.insert(user.clone()).run().await?;
         log::debug!("insert_id: {}", insert_id);
-        let updated_rows: usize = conn.query_update("insert into user (id, age) values (2, 33)".to_string()).run().await?;
+        let updated_rows: usize = conn.query_update("insert into user (id, age) values (2, 33)".to_string()).exec().await?;
 
         let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
-        let result_set: Vec<Row> = conn.query(query).run().await?;
+        let result_set: Vec<Row> = conn.query(query).exec().await?;
         for row in result_set {
             let id: i32 = row.get(0).unwrap();
             let name: Option<String> = row.get(1);
@@ -88,7 +88,8 @@ mod tests {
         log::debug!("insert_id: {}", insert_id);
 
 
-        // let user_opt: Vec<User> = conn.findMany("id > 0".to_string()).run().await?;
+        let user_vec: Vec<User> = conn.findMany("id > 0".to_string()).limit(10).run().await?;
+        log::debug!("{:?}", user_vec);
         // let user_opt: Vec<User> = conn.findAll().limit(10).run().await?;
         // let updated_rows: i32 = conn.update(user.clone(), "id = 1".to_string()).run().await?;
         //
