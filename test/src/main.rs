@@ -68,8 +68,8 @@ mod tests {
         let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
         let result_set: Vec<Row> = conn.query(query).run().await?;
         for row in result_set {
-            let id: i32 = row.get("0").unwrap();
-            let name: Option<String> = row.get("1");
+            let id: i32 = row.get(0).unwrap();
+            let name: Option<String> = row.get(1);
             log::debug!("id: {}, name: {:?}", id, name);
         }
 

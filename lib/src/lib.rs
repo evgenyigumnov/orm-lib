@@ -56,11 +56,11 @@ pub struct ORM {
 
 #[derive(Debug)]
 pub struct Row {
-    pub columns: HashMap<String,Option<String>>,
+    pub columns: HashMap<i32,Option<String>>,
 }
 pub trait RowTrait {
-    fn get<T: FromStr>(&self, name: &str) -> Option<T>;
-    fn set<T: ToString>(&mut self, name: String, value: Option<T>);
+    fn get<T: FromStr>(&self, index: i32) -> Option<T>;
+    fn set<T: ToString>(&mut self, index: i32, value: Option<T>);
 }
 impl Row {
     pub fn new() -> Self {
@@ -72,9 +72,9 @@ impl Row {
 }
 
 impl RowTrait for Row {
-    fn get<Z: FromStr>(&self, name: &str) -> Option<Z>
+    fn get<Z: FromStr>(&self, index: i32) -> Option<Z>
     {
-        let value = self.columns.get(name);
+        let value = self.columns.get(&index);
         match value {
             Some(v_opt) => {
                 match v_opt {
@@ -101,7 +101,7 @@ impl RowTrait for Row {
         }
     }
 
-    fn set<T: ToString>(&mut self, name: String, value: Option<T>) {
+    fn set<T: ToString>(&mut self, index: i32, value: Option<T>) {
         let value = match value {
             Some(v) => {
                 Some(v.to_string())
@@ -110,7 +110,7 @@ impl RowTrait for Row {
                 None
             }
         };
-        self.columns.insert(name.to_string(), value);
+        self.columns.insert(index, value);
     }
 }
 
@@ -253,7 +253,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
             for row in rows {
                 let mut i = 0;
                 for column in columns.iter() {
-                    let value_opt:Option<String> = row.get(i.to_string().as_str());
+                    let value_opt:Option<String> = row.get(i);
                     let value = match value_opt {
                         Some(v) => {
                             format!("\"{}\"", v.to_string())
@@ -293,7 +293,7 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
 
                 match  res{
                     Ok(v) => {
-                        r.set(i.to_string(), Some(v));
+                        r.set(i.try_into().unwrap(), Some(v));
 
                     },
                     Err(e) => {
@@ -307,7 +307,7 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
                 match  res{
 
                     Ok(v) => {
-                        r.set(i.to_string(), Some(v));
+                        r.set(i.try_into().unwrap(), Some(v));
                     }
                     Err(e) => {
                     }
