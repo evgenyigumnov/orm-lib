@@ -65,7 +65,7 @@ mod tests {
         conn.init(init_script).await?;
         let insert_id: i64 = conn.insert(user.clone()).run().await?;
         log::debug!("insert_id: {}", insert_id);
-        let updated_rows: usize = conn.query_update("insert into user (id, age) values (2, 33)".to_string()).exec().await?;
+        let _updated_rows: usize = conn.query_update("insert into user (id, age) values (2, 33)".to_string()).exec().await?;
 
         let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
         let result_set: Vec<Row> = conn.query(query).exec().await?;
@@ -76,7 +76,7 @@ mod tests {
         }
 
 
-        let user_opt: Option<User> = conn.findOne(format!("id = {insert_id}")).run().await?;
+        let user_opt: Option<User> = conn.find_one(format!("id = {insert_id}")).run().await?;
         log::debug!("{:?}", user_opt);
         let user = User {
             id: 0,
@@ -87,12 +87,12 @@ mod tests {
         log::debug!("insert_id: {}", insert_id);
 
 
-        let user_vec: Vec<User> = conn.findMany("id > 0".to_string()).limit(2).run().await?;
+        let user_vec: Vec<User> = conn.find_many("id > 0".to_string()).limit(2).run().await?;
         log::debug!("{:?}", user_vec);
-        let user_vec: Vec<User> = conn.findAll().run().await?;
+        let user_vec: Vec<User> = conn.find_all().run().await?;
         log::debug!("{:?}", user_vec);
-        let updated_rows: usize = conn.update(user.clone(), "id = 1".to_string()).run().await?;
-        let user_vec: Vec<User> = conn.findAll().run().await?;
+        let _updated_rows: usize = conn.update(user.clone(), "id = 1".to_string()).run().await?;
+        let user_vec: Vec<User> = conn.find_all().run().await?;
         log::debug!("{:?}", user_vec);
         let query = "delete from user".to_string();
         let updated_rows = conn.query_update(query).exec().await?;

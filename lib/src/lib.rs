@@ -140,7 +140,7 @@ impl ORM {
         self.conn.last_insert_rowid()
     }
 
-    pub fn findOne<T: TableDeserialize>(&self, query_where: String) -> QueryBuilder<Option<T>, T>
+    pub fn find_one<T: TableDeserialize>(&self, query_where: String) -> QueryBuilder<Option<T>, T>
     where T: TableDeserialize + TableSerialize + for<'a> Deserialize<'a> + 'static
     {
         let table_name = T::same_name();
@@ -156,7 +156,7 @@ impl ORM {
         qb
     }
 
-    pub fn findMany<T>(&self, query_where: String) -> QueryBuilder<Vec<T>, T>
+    pub fn find_many<T>(&self, query_where: String) -> QueryBuilder<Vec<T>, T>
         where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
 
     {
@@ -174,7 +174,7 @@ impl ORM {
         qb
     }
 
-    pub fn findAll<T>(&self) -> QueryBuilder<Vec<T>, T>
+    pub fn find_all<T>(&self) -> QueryBuilder<Vec<T>, T>
         where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static {
         let table_name = T::same_name();
 
@@ -352,7 +352,7 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
             result.push(r);
             Ok(())
         })?;
-        for x in person_iter {
+        for _x in person_iter {
         }
         // log::debug!("{:?}", result);
 

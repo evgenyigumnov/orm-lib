@@ -1,6 +1,5 @@
 use darling::FromDeriveInput;
 use proc_macro::{self, TokenStream};
-use proc_macro2::{Ident, Span};
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
@@ -77,7 +76,7 @@ pub fn derive_de(input: TokenStream) -> TokenStream {
 
     let code_token: proc_macro2::TokenStream = code.parse().unwrap(); // Преобразование строки в TokenStream
 
-    let mut answer = match opts.name {
+    let  answer = match opts.name {
         Some(x) => quote! {
             fn same_name() -> String {
                 #x.to_string()

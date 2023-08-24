@@ -468,7 +468,7 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
             self.output += key;
 
             self.output += " = ";
-            value.serialize(&mut **self);
+            _ = value.serialize(&mut **self);
         }
         Ok(())
     }
