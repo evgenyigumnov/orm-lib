@@ -91,8 +91,6 @@ mod tests {
         let user_opt: Option<User> = conn.find_one(format!("id = 3").as_str()).run().await?;
         assert_eq!(user_opt.unwrap().name.unwrap(), input);
 
-
-
         let user_vec: Vec<User> = conn.find_many("id > 0").limit(2).run().await?;
         log::debug!("{:?}", user_vec);
         let user_vec: Vec<User> = conn.find_all().run().await?;
