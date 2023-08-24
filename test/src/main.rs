@@ -48,7 +48,6 @@ mod tests {
             pub age: i32,
         }
 
-        // if file file.db exists, it will be deleted
         let file = std::path::Path::new("file.db");
         if file.exists() {
             std::fs::remove_file(file)?;
