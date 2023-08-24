@@ -239,14 +239,43 @@ impl<T> QueryBuilder<'_, usize,T> {
     }
 }
 
-impl<Z, T> QueryBuilder<'_, Option<Z>,T>
-where Z: for<'a> Deserialize<'a> + Debug + 'static
+impl<T> QueryBuilder<'_, Option<T>,T>
+where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
 {
-    pub async fn run(&self) -> Result<Option<Z>, ORMError> {
-        let user_str = r#"{"id":"1","name":"John"}"#.to_string();
-        let user: Z = deserializer_key_values::from_str(&user_str).unwrap();
-        log::debug!("{:?}", user);
-        Ok(Some(user))
+    pub async fn run(&self) -> Result<Option<T>, ORMError> {
+
+        let rows  = self.orm.query(self.query.clone()).run().await?;
+        let columns: Vec<String> =T::fields();
+        if rows.len() == 0 {
+            return Ok(None);
+        } else {
+            let mut column_str: Vec<String> = Vec::new();
+            for row in rows {
+                let mut i = 0;
+                for column in columns.iter() {
+                    let value_opt:Option<String> = row.get(i.to_string().as_str());
+                    let value = match value_opt {
+                        Some(v) => {
+                            format!("\"{}\"", v.to_string())
+                        }
+                        None => {
+                            "null".to_string()
+                        }
+                    };
+                    column_str.push(format!("\"{}\":{}", column, value));
+                    i = i + 1;
+                }
+            }
+            println!("{:?}", column_str);
+            let user_str = r#"{"id":"1","name":"John"}"#.to_string();
+            let user: T = deserializer_key_values::from_str(&user_str).unwrap();
+
+            log::debug!("{:?}", user);
+
+            Ok(Some(user))
+
+        }
+
     }
 }
 
