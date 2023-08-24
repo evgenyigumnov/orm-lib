@@ -1,5 +1,6 @@
 use darling::FromDeriveInput;
 use proc_macro::{self, TokenStream};
+use proc_macro2::{Ident, Span};
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
@@ -14,7 +15,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input);
     let opts = Opts::from_derive_input(&input).expect("Wrong options");
     let DeriveInput { ident, .. } = input;
-
     let answer = match opts.name {
         Some(x) => quote! {
             fn name(&self) -> String {
@@ -43,24 +43,57 @@ pub fn derive_de(input: TokenStream) -> TokenStream {
     let opts = Opts::from_derive_input(&input).expect("Wrong options");
     let DeriveInput { ident, .. } = input;
 
-    let answer = match opts.name {
+    let syn::Data::Struct(data) = input.data else {
+        unimplemented!()
+    };
+
+    let mut fields: Vec<String> = Vec::new();
+    for f in data.fields.iter() {
+        fields.push(f.ident.as_ref().unwrap().to_string());
+
+    }
+    let code1: String = r#"
+    fn fields() -> Vec<String> {
+
+        let mut fields: Vec<String> = Vec::new();
+
+    "#.to_string();
+
+    let mut code2: String = String::new();
+
+    for f in fields.iter() {
+        code2.push_str(&format!("fields.push(\"{}\".to_string());\n", f));
+    }
+
+    let code3: String = r#"
+
+        fields
+    }
+
+    "#.to_string();
+
+    let code_all = format!("{}{}{}", code1, code2, code3);
+    let code = code_all.as_str();
+
+    let code_token: proc_macro2::TokenStream = code.parse().unwrap(); // Преобразование строки в TokenStream
+
+    let mut answer = match opts.name {
         Some(x) => quote! {
             fn same_name() -> String {
                 #x.to_string()
             }
         },
         None => quote! {
-            fn same_name() -> String {
-                let r = format!("{:?}", #ident);
-                r
-            }
         },
     };
 
     let output = quote! {
         impl ormlib::TableDeserialize for #ident {
             #answer
+
+            #code_token
         }
     };
+
     output.into()
 }

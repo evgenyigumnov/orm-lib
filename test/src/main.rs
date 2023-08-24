@@ -21,15 +21,17 @@ mod tests {
     #[table(name = "B")]
     pub struct TestB {
         pub id: i32,
+        pub id_id: i32,
     }
 
     #[tokio::test]
     async fn test_derive() -> Result<(), ORMError> {
 
-        let t = TestB { id: 0 };
+        let t = TestB { id: 0, id_id: 0 };
         assert_eq!(t.name(), "B");
         assert_eq!(TestB::same_name(), "B");
-
+        let r = format!("{:?}", TestB::fields());
+        assert_eq!(r, "[\"id\", \"id_id\"]");
         Ok(())
     }
 

@@ -46,6 +46,9 @@ pub trait TableDeserialize {
     fn same_name() -> String{
         "Test".to_string()
     }
+    fn fields() -> Vec<String>{
+        Vec::new()
+    }
 }
 pub struct ORM {
     conn: Connection,
