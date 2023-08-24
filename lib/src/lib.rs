@@ -133,6 +133,10 @@ impl ORM {
         qb
     }
 
+    pub fn last_insert_rowid(&self) -> i64 {
+        self.conn.last_insert_rowid()
+    }
+
     pub fn findOne<T: TableDeserialize>(&self, query_where: String) -> QueryBuilder<Option<T>, T>
     where T: TableDeserialize + TableSerialize + for<'a> Deserialize<'a> + 'static
     {
@@ -227,9 +231,8 @@ pub struct QueryBuilder<'a, T, V> {
 impl<T> QueryBuilder<'_, i32,T> {
     pub async fn run(&self) -> Result<i32, ORMError> {
         log::debug!("{}", self.query);
-        self.orm.conn.execute(self.query.as_str(),(),)?;
-        let r:i32  = 1;
-        Ok(r)
+        let r = self.orm.conn.execute(self.query.as_str(),(),)?;
+        Ok(1)
     }
 }
 
