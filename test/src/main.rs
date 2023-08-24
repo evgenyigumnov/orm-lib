@@ -88,9 +88,10 @@ mod tests {
         log::debug!("insert_id: {}", insert_id);
 
 
-        let user_vec: Vec<User> = conn.findMany("id > 0".to_string()).limit(10).run().await?;
+        let user_vec: Vec<User> = conn.findMany("id > 0".to_string()).limit(2).run().await?;
         log::debug!("{:?}", user_vec);
-        // let user_opt: Vec<User> = conn.findAll().limit(10).run().await?;
+        let user_vec: Vec<User> = conn.findAll().run().await?;
+        log::debug!("{:?}", user_vec);
         // let updated_rows: i32 = conn.update(user.clone(), "id = 1".to_string()).run().await?;
         //
 

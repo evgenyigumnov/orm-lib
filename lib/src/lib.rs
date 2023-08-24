@@ -175,9 +175,14 @@ impl ORM {
         qb
     }
 
-    pub fn findAll<T>(&self) -> QueryBuilder<Vec<T>, ()> {
-        let qb = QueryBuilder::<Vec<T>, ()> {
-            query: "SELECT * FROM ".to_string(),
+    pub fn findAll<T>(&self) -> QueryBuilder<Vec<T>, T>
+        where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static {
+        let table_name = T::same_name();
+
+        let query: String = format!("select * from {table_name}");
+
+        let qb = QueryBuilder::<Vec<T>, T> {
+            query,
             entity: None,
             orm: self,
             phantom: std::marker::PhantomData,
