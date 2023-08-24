@@ -61,13 +61,14 @@ mod tests {
         let init_script = "create_table_1.sql".to_string();
         conn.init(init_script).await?;
         let insert_id = conn.insert(user.clone()).run().await?;
-        // let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
-        let query = format!("select * from user");
+        let updated_rows: i32 = conn.query_update("insert into user (id) values (3)".to_string()).run().await?;
+
+        let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
         let result_set: Vec<Row> = conn.query(query).run().await?;
         for row in result_set {
             let id: i32 = row.get("0").unwrap();
-            let name: String = row.get("1").unwrap();
-            log::debug!("id: {}, name: {}", id, name);
+            let name: Option<String> = row.get("1");
+            log::debug!("id: {}, name: {:?}", id, name);
         }
 
 
