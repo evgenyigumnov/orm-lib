@@ -51,6 +51,7 @@ pub struct ORM {
     conn: Connection,
 }
 
+#[derive(Debug)]
 pub struct Row {
     pub columns: HashMap<String,Option<String>>,
 }
@@ -123,9 +124,8 @@ impl ORM {
         let types = serializer_types::to_string(&data).unwrap();
         let values = serializer_values::to_string(&data).unwrap();
         let query: String = format!("insert into {table_name} {types} values {values}");
-        log::debug!("{}", query);
         let qb = QueryBuilder::<i32,T> {
-            query: "insert into  ".to_string(),
+            query: query,
             entity: Some(data),
             orm: self,
             phantom: std::marker::PhantomData,
@@ -181,7 +181,6 @@ impl ORM {
     }
 
     pub fn query<T>(&self, query: String) -> QueryBuilder<Vec<T>, T> {
-        log::debug!("{}", query);
            let qb = QueryBuilder::<Vec<T>, T> {
             query,
             entity: None,
@@ -245,35 +244,51 @@ where Z: for<'a> Deserialize<'a> + Debug + 'static
     }
 }
 
-impl<R> QueryBuilder<'_, Vec<R>,R> {
-    pub async fn run(&self) -> Result<Vec<R>, ORMError>
-    where R: From<Row>
+impl<R> QueryBuilder<'_, Vec<Row>,R> {
+    pub async fn run(&self) -> Result<Vec<Row>, ORMError>
     {
         log::debug!("{}", self.query);
         let mut stmt = self.orm.conn.prepare( self.query.as_str())?;
         let mut result: Vec<Row> = Vec::new();
         let person_iter = stmt.query_map([], |row| {
             let mut i = 0;
+            let mut r: Row = Row::new();
             loop {
-                let res: rusqlite::Result<Option<String>>= row.get(i);
+                let res: rusqlite::Result<i32>= row.get(i);
+
                 match  res{
                     Ok(v) => {
-                        let mut r: Row = Row::new();
-                        r.set(i.to_string(), v);
-                        result.push(r);
+                        r.set(i.to_string(), Some(v));
 
-                    }
-                    Err(_) => {
-                        break;
+                    },
+                    Err(e) => {
+                        if e ==  rusqlite::Error::InvalidColumnIndex(i) {
+                            break;
+                        }
                     }
                 }
+
+                let res: rusqlite::Result<String>= row.get(i);
+                match  res{
+
+                    Ok(v) => {
+                        r.set(i.to_string(), Some(v));
+                    }
+                    Err(e) => {
+                    }
+                }
+
                 i = i + 1;
             }
 
+            result.push(r);
             Ok(())
         })?;
+        for x in person_iter {
+        }
+        // log::debug!("{:?}", result);
 
-        Ok(Vec::new())
+        Ok(result)
     }
 
     pub fn limit(&self, limit: i32) -> QueryBuilder<Vec<Row>, ()> {
