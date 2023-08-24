@@ -11,7 +11,7 @@ use serde::de::{
     self, Deserialize, DeserializeSeed, EnumAccess, IntoDeserializer,
     MapAccess, SeqAccess, VariantAccess, Visitor,
 };
-use std::ops::{AddAssign, MulAssign, Neg};
+use std::ops::{AddAssign, MulAssign};
 
 pub struct Deserializer<'de> {
     // This string starts with the input data and characters are truncated off

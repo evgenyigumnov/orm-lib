@@ -26,7 +26,6 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use thiserror::Error;
-use crate::serializer_types::to_string;
 
 #[derive(Error, Debug)]
 pub enum ORMError {
@@ -130,9 +129,9 @@ impl ORM {
         let query: String = format!("insert into {table_name} {types} values {values}");
         let qb = QueryBuilder::<i64,T> {
             query: query,
-            entity: Some(data),
+            entity: Default::default(),
             orm: self,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
@@ -150,9 +149,9 @@ impl ORM {
 
         let qb = QueryBuilder::<Option<T>, T> {
             query,
-            entity: None,
+            entity: std::marker::PhantomData,
             orm: self,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
@@ -168,9 +167,9 @@ impl ORM {
 
         let qb = QueryBuilder::<Vec<T>, T> {
             query,
-            entity: None,
+            entity: std::marker::PhantomData,
             orm: self,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
@@ -183,9 +182,9 @@ impl ORM {
 
         let qb = QueryBuilder::<Vec<T>, T> {
             query,
-            entity: None,
+            entity: std::marker::PhantomData,
             orm: self,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
@@ -200,9 +199,9 @@ impl ORM {
         let query: String = format!("update {table_name} set {key_value} where {query_where}");
         let qb = QueryBuilder::<usize, ()> {
             query,
-            entity: None,
+            entity: std::marker::PhantomData,
             orm: self,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
@@ -210,9 +209,9 @@ impl ORM {
     pub fn query<T>(&self, query: String) -> QueryBuilder<Vec<T>, T> {
            let qb = QueryBuilder::<Vec<T>, T> {
             query,
-            entity: None,
+            entity: std::marker::PhantomData,
             orm: self,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
@@ -220,9 +219,9 @@ impl ORM {
     pub fn query_update(&self, query: String) -> QueryBuilder<usize, ()> {
         let qb = QueryBuilder::<usize, ()> {
             query,
-            entity: None,
+            entity: std::marker::PhantomData,
             orm: self,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
@@ -238,7 +237,7 @@ impl ORM {
 
     pub async fn init(&self, script: String) -> Result<(), ORMError>  {
         let query = std::fs::read_to_string(script)?;
-        let updated_rows: usize = self.query_update(query).exec().await?;
+        let _updated_rows: usize = self.query_update(query).exec().await?;
 
         Ok(())
     }
@@ -246,9 +245,9 @@ impl ORM {
 
 pub struct QueryBuilder<'a, T, V> {
     query: String,
-    entity: Option<V>,
+    entity:  std::marker::PhantomData<V>,
     orm: &'a ORM,
-    phantom: std::marker::PhantomData<T>,
+    result: std::marker::PhantomData<T>,
 }
 
 impl<T> QueryBuilder<'_, usize,T> {
@@ -343,7 +342,7 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
                     Ok(v) => {
                         r.set(i.try_into().unwrap(), Some(v));
                     }
-                    Err(e) => {
+                    Err(_e) => {
                     }
                 }
 
@@ -399,9 +398,9 @@ impl<T> QueryBuilder<'_, Vec<T>,T> {
 
         let qb =  QueryBuilder::<Vec<T>,T> {
             query: format!("{} LIMIT {}", self.query, limit),
-            entity: None,
+            entity: std::marker::PhantomData,
             orm: self.orm,
-            phantom: std::marker::PhantomData,
+            result: std::marker::PhantomData,
         };
         qb
     }
