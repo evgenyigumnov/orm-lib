@@ -79,6 +79,13 @@ mod tests {
         // let user_opt: Option<User> = conn.findOne(format!("id = {insert_id}")).run().await?;
         let user_opt: Option<User> = conn.findOne(format!("id = 2")).run().await?;
         log::debug!("{:?}", user_opt);
+        let user = User {
+            id: 0,
+            name: None,
+            age: 40,
+        };
+        let insert_id = conn.insert(user.clone()).run().await?;
+
 
 
         // let user_opt: Vec<User> = conn.findMany("id > 0".to_string()).run().await?;
