@@ -120,14 +120,14 @@ impl ORM {
         let conn = Connection::open(url)?;
         Ok(Arc::new(ORM { conn }))
     }
-    pub fn insert<T>(&self, data: T) -> QueryBuilder<usize, T>
+    pub fn insert<T>(&self, data: T) -> QueryBuilder<i64, T>
     where T: TableDeserialize + TableSerialize + Serialize + 'static
     {
         let table_name = data.name();
         let types = serializer_types::to_string(&data).unwrap();
         let values = serializer_values::to_string(&data).unwrap();
         let query: String = format!("insert into {table_name} {types} values {values}");
-        let qb = QueryBuilder::<usize,T> {
+        let qb = QueryBuilder::<i64,T> {
             query: query,
             entity: Some(data),
             orm: self,
@@ -234,6 +234,15 @@ impl<T> QueryBuilder<'_, usize,T> {
     pub async fn run(&self) -> Result<usize, ORMError> {
         log::debug!("{}", self.query);
         let r = self.orm.conn.execute(self.query.as_str(),(),)?;
+        Ok(r)
+    }
+}
+
+impl<T> QueryBuilder<'_, i64,T> {
+    pub async fn run(&self) -> Result<i64, ORMError> {
+        log::debug!("{}", self.query);
+        let _r = self.orm.conn.execute(self.query.as_str(),(),)?;
+        let r = self.orm.last_insert_rowid();
         Ok(r)
     }
 }

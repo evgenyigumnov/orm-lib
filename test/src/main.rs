@@ -64,7 +64,8 @@ mod tests {
         let conn = ORM::connect("file.db".to_string())?;
         let init_script = "create_table_1.sql".to_string();
         conn.init(init_script).await?;
-        let insert_id = conn.insert(user.clone()).run().await?;
+        let insert_id: i64 = conn.insert(user.clone()).run().await?;
+        log::debug!("insert_id: {}", insert_id);
         let updated_rows: usize = conn.query_update("insert into user (id, age) values (2,33)".to_string()).run().await?;
 
         let query = format!("select * from user where name like {}", conn.protect("%oh%".to_string()));
@@ -84,8 +85,8 @@ mod tests {
             name: None,
             age: 40,
         };
-        let insert_id = conn.insert(user.clone()).run().await?;
-
+        let insert_id:i64 = conn.insert(user.clone()).run().await?;
+        log::debug!("insert_id: {}", insert_id);
 
 
         // let user_opt: Vec<User> = conn.findMany("id > 0".to_string()).run().await?;
