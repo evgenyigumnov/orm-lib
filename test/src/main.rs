@@ -89,7 +89,7 @@ mod tests {
         let insert_id:i64 = conn.insert(user.clone()).run().await?;
         log::debug!("insert_id: {}", insert_id);
         let user_opt: Option<User> = conn.find_one(format!("id = 3").as_str()).run().await?;
-        // assert_eq!(user_opt.unwrap().name.unwrap(), input);
+        assert_eq!(user_opt.unwrap().name.unwrap(), input);
 
 
 

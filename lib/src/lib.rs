@@ -328,10 +328,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
                     let value_opt:Option<String> = row.get(i);
                     let value = match value_opt {
                         Some(v) => {
-                            // format!("\"{}\"", ORM::escape_json(v.as_str()))
-                            let a = v.replace("\\\"", "\"");
-                            log::debug!("!!!!: {}", a);
-                            format!("\"{}\"", ORM::escape_json(a.as_str()))
+                            format!("\"{}\"", ORM::escape_json(v.as_str()))
                         }
                         None => {
                             "null".to_string()
@@ -342,6 +339,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
                 }
             }
             let user_str = format!("{{{}}}", column_str.join(","));
+            log::debug!("zzz{}", user_str);
             let user: T = deserializer_key_values::from_str(&user_str).unwrap();
             Ok(Some(user))
 
