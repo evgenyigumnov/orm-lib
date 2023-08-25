@@ -164,5 +164,28 @@ mod tests {
         log::debug!("updated_rows: {}", updated_rows);
         Ok(())
     }
+
+
+
+    #[tokio::test]
+    async fn test_async() -> Result<(), ORMError> {
+        let file = std::path::Path::new("file.db");
+        if file.exists() {
+            std::fs::remove_file(file)?;
+        }
+        let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
+
+        let conn = ORM::connect("file.db".to_string())?;
+
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        let r = runtime.spawn(async move {
+            let init_script = "create_table_1.sql";
+            conn.init(init_script).await.unwrap();
+        });
+        r.await.unwrap();
+        std::mem::forget(runtime);
+        Ok(())
+    }
+
 }
 

@@ -23,6 +23,7 @@ use rusqlite::{Connection, Result};
 use std::fmt::Debug;
 use std::str::FromStr;
 use std::sync::Arc;
+use futures::lock::Mutex;
 use serde::{Deserialize, Serialize};
 
 use thiserror::Error;
@@ -53,7 +54,7 @@ pub trait TableDeserialize {
     }
 }
 pub struct ORM {
-    conn: Connection,
+    conn: Mutex<Connection>,
 }
 
 #[derive(Debug)]
@@ -118,9 +119,13 @@ impl RowTrait for Row {
 
 
 impl ORM {
-    pub fn connect(url: String) -> Result<Arc<ORM>, ORMError> {
+    pub fn connect(url: String) -> Result<Arc<ORM>, ORMError>
+    where Arc<ORM>: Send + Sync + 'static
+    {
         let conn = Connection::open(url)?;
-        Ok(Arc::new(ORM { conn }))
+        Ok(Arc::new(ORM {
+            conn: Mutex::new(conn),
+        }))
     }
     pub fn insert<T>(&self, data: T) -> QueryBuilder<T, T>
         where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Serialize + Debug + 'static
@@ -138,8 +143,9 @@ impl ORM {
         qb
     }
 
-    pub fn last_insert_rowid(&self) -> i64 {
-        self.conn.last_insert_rowid()
+    pub async fn last_insert_rowid(&self) -> i64 {
+        let conn = self.conn.lock().await;
+        conn.last_insert_rowid()
     }
 
     pub fn find_one<T: TableDeserialize>(&self, query_where: &str) -> QueryBuilder<Option<T>, T>
@@ -290,7 +296,8 @@ pub struct QueryBuilder<'a, T, V> {
 impl<T> QueryBuilder<'_, usize,T> {
     pub async fn exec(&self) -> Result<usize, ORMError> {
         log::debug!("{}", self.query);
-        let r = self.orm.conn.execute(self.query.as_str(),(),)?;
+        let conn = self.orm.conn.lock().await;
+        let r = conn.execute(self.query.as_str(),(),)?;
         Ok(r)
     }
 }
@@ -300,8 +307,12 @@ impl<T> QueryBuilder<'_, T,T> {
         where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Debug + 'static
     {
         log::debug!("{}", self.query);
-        let _r = self.orm.conn.execute(self.query.as_str(),(),)?;
-        let r = self.orm.last_insert_rowid();
+        let r = {
+            let conn = self.orm.conn.lock().await;
+            let _r = conn.execute(self.query.as_str(),(),)?;
+            let r = conn.last_insert_rowid();
+            r
+        };
         let t_opt = self.orm.find_one(format!("rowid = {}", r).as_str()).run().await?;
         match t_opt {
             Some(t) => Ok(t),
@@ -314,7 +325,8 @@ impl<T> QueryBuilder<'_, T,T> {
 impl<T> QueryBuilder<'_, usize,T> {
     pub async fn run(&self) -> Result<usize, ORMError> {
         log::debug!("{}", self.query);
-        let r = self.orm.conn.execute(self.query.as_str(),(),)?;
+        let conn = self.orm.conn.lock().await;
+        let r = conn.execute(self.query.as_str(),(),)?;
         Ok(r)
     }
 }
@@ -361,7 +373,8 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
     pub async fn exec(&self) -> Result<Vec<Row>, ORMError>
     {
         log::debug!("{}", self.query);
-        let mut stmt = self.orm.conn.prepare( self.query.as_str())?;
+        let conn = self.orm.conn.lock().await;
+        let mut stmt = conn.prepare( self.query.as_str())?;
         let mut result: Vec<Row> = Vec::new();
         let person_iter = stmt.query_map([], |row| {
             let mut i = 0;
