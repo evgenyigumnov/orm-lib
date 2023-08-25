@@ -53,6 +53,8 @@ pub trait TableDeserialize {
         Vec::new()
     }
 }
+
+#[derive(Debug)]
 pub struct ORM {
     conn: Mutex<Connection>,
 }
