@@ -7,7 +7,8 @@ Cargo.toml
 
 ```toml
 [dependencies]
-ormlib = "0.2.0"
+ormlib = "0.2.1"
+ormlib_derive = "0.2.1"
 ```
 
 

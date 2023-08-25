@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 ormlib = {path = "../lib"}
-orm_derive = {path = "../orm_derive"}
+ormlib_derive = {path = "../orm_derive"}
 futures = "0.3.26"
 
 env_logger = "0.10.0"

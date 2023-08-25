@@ -1,13 +1,13 @@
 [package]
 name = "ormlib"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 
 authors = ["Evgeny Igumnov <igumnovnsk@gmail.com>"]
 repository = "https://github.com/evgenyigumnov/orm-lib"
 license = "MIT"
 license-file = "../LICENSE"
-keywords = ["actor"]
+keywords = ["orm", "sql", "database", "sqlite"]
 categories = ["library"]
 readme = "../README.md"
 description = "Indeed, an ORM library, not a framework, written in Rust"

@@ -11,9 +11,9 @@ async fn main() -> Result<(), ORMError> {
 #[cfg(test)]
 mod tests {
     use serde_derive::{Deserialize, Serialize};
-    use orm_derive::TableDeserialize;
+    use ormlib_derive::TableDeserialize;
     use ormlib::{RowTrait, TableDeserialize};
-    use orm_derive::TableSerialize;
+    use ormlib_derive::TableSerialize;
     use ormlib::TableSerialize;
     use ormlib::ORMError;
 
