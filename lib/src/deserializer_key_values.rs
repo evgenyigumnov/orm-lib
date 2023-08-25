@@ -155,8 +155,7 @@ impl<'de> Deserializer<'de> {
             return Err(Error::ExpectedString);
         }
 
-        let b: usize = 0;
-        let mut start_idx = 0;
+        let start_idx = 0;
         let mut end_idx = 0;
         let mut is_escaped = false;
 

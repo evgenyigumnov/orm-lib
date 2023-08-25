@@ -35,6 +35,8 @@ pub enum ORMError {
     RusqliteError(#[from] rusqlite::Error),
     #[error("unknown error")]
     Unknown,
+    #[error("Error in object insertion")]
+    InsertError,
 }
 
 pub trait TableSerialize {
@@ -120,14 +122,14 @@ impl ORM {
         let conn = Connection::open(url)?;
         Ok(Arc::new(ORM { conn }))
     }
-    pub fn insert<T>(&self, data: T) -> QueryBuilder<i64, T>
-    where T: TableDeserialize + TableSerialize + Serialize + 'static
+    pub fn insert<T>(&self, data: T) -> QueryBuilder<T, T>
+        where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Serialize + Debug + 'static
     {
         let table_name = data.name();
         let types = serializer_types::to_string(&data).unwrap();
         let values = serializer_values::to_string(&data).unwrap();
         let query: String = format!("insert into {table_name} {types} values {values}");
-        let qb = QueryBuilder::<i64,T> {
+        let qb = QueryBuilder::<T,T> {
             query: query,
             entity: Default::default(),
             orm: self,
@@ -293,12 +295,19 @@ impl<T> QueryBuilder<'_, usize,T> {
     }
 }
 
-impl<T> QueryBuilder<'_, i64,T> {
-    pub async fn run(&self) -> Result<i64, ORMError> {
+impl<T> QueryBuilder<'_, T,T> {
+    pub async fn apply(&self) -> Result<T, ORMError>
+        where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Debug + 'static
+    {
         log::debug!("{}", self.query);
         let _r = self.orm.conn.execute(self.query.as_str(),(),)?;
         let r = self.orm.last_insert_rowid();
-        Ok(r)
+        let t_opt = self.orm.find_one(format!("rowid = {}", r).as_str()).run().await?;
+        match t_opt {
+            Some(t) => Ok(t),
+            None => Err(ORMError::InsertError),
+        }
+
     }
 }
 
@@ -339,7 +348,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
                 }
             }
             let user_str = format!("{{{}}}", column_str.join(","));
-            log::debug!("zzz{}", user_str);
+            // log::debug!("zzz{}", user_str);
             let user: T = deserializer_key_values::from_str(&user_str).unwrap();
             Ok(Some(user))
 
@@ -423,7 +432,7 @@ impl<T> QueryBuilder<'_, Vec<T>,T> {
                     i = i + 1;
                 }
                 let user_str = format!("{{{}}}", column_str.join(","));
-                log::debug!("{}", user_str);
+                // log::debug!("{}", user_str);
                 let user: T = deserializer_key_values::from_str(&user_str).unwrap();
 
                 result.push(user);

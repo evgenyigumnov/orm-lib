@@ -37,8 +37,69 @@ mod tests {
 
     use ormlib::{ORM, Row};
 
+
     #[tokio::test]
     async fn test() -> Result<(), ORMError> {
+
+        let file = std::path::Path::new("file.db");
+        if file.exists() {
+            std::fs::remove_file(file)?;
+        }
+
+        let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
+
+        let conn = ORM::connect("file.db".to_string())?;
+        let init_script = "create_table_1.sql";
+        conn.init(init_script).await?;
+
+        #[derive(TableDeserialize, TableSerialize, Serialize, Deserialize, Debug, Clone)]
+        #[table(name = "user")]
+        pub struct User {
+            pub id: i32,
+            pub name: Option<String>,
+            pub age: i32,
+        }
+
+        let mut user = User {
+            id: 0,
+            name: Some("John".to_string()),
+            age: 30,
+        };
+
+        let mut user_from_db: User = conn.insert(user.clone()).apply().await?;
+
+        user.name = Some("Mary".to_string());
+        let  _: User = conn.insert(user.clone()).apply().await?;
+
+        let query_where = format!("id = {}", user_from_db.id);
+        let user_opt: Option<User> = conn.find_one(query_where.as_str()).run().await?;
+        log::debug!("User = {:?}", user_opt);
+
+        let user_all: Vec<User> = conn.find_all().run().await?;
+        log::debug!("Users = {:?}", user_all);
+
+        user_from_db.name = Some("Mike".to_string());
+        let _updated_rows: usize = conn.update(user_from_db, query_where.as_str()).run().await?;
+
+
+        let user_many: Vec<User> = conn.find_many("id > 0").limit(2).run().await?;
+        log::debug!("Users = {:?}", user_many);
+
+        let query = format!("select * from user where name like {}", conn.protect("%oh%"));
+        let result_set: Vec<Row> = conn.query(query.as_str()).exec().await?;
+        for row in result_set {
+            let id: i32 = row.get(0).unwrap();
+            let name: Option<String> = row.get(1);
+            log::debug!("User = id: {}, name: {:?}", id, name);
+        }
+
+        let updated_rows = conn.query_update("delete from user").exec().await?;
+        log::debug!("updated_rows: {}", updated_rows);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_dirty() -> Result<(), ORMError> {
 
         #[derive(TableDeserialize, TableSerialize, Serialize, Deserialize, Debug, Clone)]
         #[table(name = "user")]
@@ -63,8 +124,8 @@ mod tests {
         let conn = ORM::connect("file.db".to_string())?;
         let init_script = "create_table_1.sql";
         conn.init(init_script).await?;
-        let insert_id: i64 = conn.insert(user.clone()).run().await?;
-        log::debug!("insert_id: {}", insert_id);
+        let user_from_db: User = conn.insert(user.clone()).apply().await?;
+        log::debug!("insert_id: {}", user_from_db.id);
         let _updated_rows: usize = conn.query_update("insert into user (id, age) values (2, 33)").exec().await?;
 
         let query = format!("select * from user where name like {}", conn.protect("%oh%"));
@@ -76,7 +137,8 @@ mod tests {
         }
 
 
-        let user_opt: Option<User> = conn.find_one(format!("id = {insert_id}").as_str()).run().await?;
+        let inseret_id = user_from_db.id;
+        let user_opt: Option<User> = conn.find_one(format!("id = {inseret_id}").as_str()).run().await?;
         log::debug!("{:?}", user_opt);
         let input = r#"Hello 'world'
          and "universe""#;
@@ -86,8 +148,8 @@ mod tests {
             name: Some(input.to_string()),
             age: 40,
         };
-        let insert_id:i64 = conn.insert(user.clone()).run().await?;
-        log::debug!("insert_id: {}", insert_id);
+        let new_user = conn.insert(user.clone()).apply().await?;
+        log::debug!("insert_id: {}", new_user.id);
         let user_opt: Option<User> = conn.find_one(format!("id = 3").as_str()).run().await?;
         assert_eq!(user_opt.unwrap().name.unwrap(), input);
 
