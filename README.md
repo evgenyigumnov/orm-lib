@@ -1,4 +1,10 @@
-# orm-lib
+# Ormlib
+
+Indeed, an ORM library, not a framework, written in Rust
+
+## Features
+
+The main idea that I put into my ORM library is a minimum of stupid code and easy use of the library. I wanted users not to have to write long chains of function calls to construct a simple SQL query.
 
 
 ## Usage
