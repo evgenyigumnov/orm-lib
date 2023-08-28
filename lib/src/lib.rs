@@ -38,11 +38,16 @@ pub enum ORMError {
     Unknown,
     #[error("Error in object insertion")]
     InsertError,
+    #[error("No connection")]
+    NoConnection,
 }
 
 pub trait TableSerialize {
     fn name(&self) -> String{
         "Test".to_string()
+    }
+    fn get_id(&self) -> String {
+        "0".to_string()
     }
 }
 pub trait TableDeserialize {
@@ -56,7 +61,7 @@ pub trait TableDeserialize {
 
 #[derive(Debug)]
 pub struct ORM {
-    conn: Mutex<Connection>,
+    conn: Mutex<Option<Connection>>,
 }
 
 #[derive(Debug)]
@@ -126,7 +131,7 @@ impl ORM {
     {
         let conn = Connection::open(url)?;
         Ok(Arc::new(ORM {
-            conn: Mutex::new(conn),
+            conn: Mutex::new(Some(conn)),
         }))
     }
     pub fn insert<T>(&self, data: T) -> QueryBuilder<T, T>
@@ -145,9 +150,29 @@ impl ORM {
         qb
     }
 
-    pub async fn last_insert_rowid(&self) -> i64 {
+    pub async fn last_insert_rowid(&self)  -> Result<i64, ORMError>{
         let conn = self.conn.lock().await;
-        conn.last_insert_rowid()
+        if conn.is_none() {
+            return Err(ORMError::NoConnection);
+        }
+        Ok(conn.as_ref().unwrap().last_insert_rowid())
+    }
+
+    pub async fn close(&self)  -> Result<(), ORMError>{
+        let mut conn_lock = self.conn.lock().await;
+        if conn_lock.is_none() {
+            return Err(ORMError::NoConnection);
+        }
+        let conn = conn_lock.take();
+        let r = conn.unwrap().close();
+        match r {
+            Ok(_) => {
+                Ok(())
+            }
+            Err(e) => {
+                Err(ORMError::RusqliteError(e.1))
+            }
+        }
     }
 
     pub fn find_one<T: TableDeserialize>(&self, query_where: &str) -> QueryBuilder<Option<T>, T>
@@ -207,6 +232,21 @@ impl ORM {
         // remove first and last char
         let key_value = &key_value_str[1..key_value_str.len()-1];
         let query: String = format!("update {table_name} set {key_value} where {query_where}");
+        let qb = QueryBuilder::<usize, ()> {
+            query,
+            entity: std::marker::PhantomData,
+            orm: self,
+            result: std::marker::PhantomData,
+        };
+        qb
+    }
+
+    pub fn remove<T>(&self, data: T) -> QueryBuilder<usize, ()>
+        where T: TableDeserialize + TableSerialize + Serialize + 'static
+    {
+        let table_name = data.name();
+        let id = data.get_id();
+        let query: String = format!("delete from {table_name} where id = {id}");
         let qb = QueryBuilder::<usize, ()> {
             query,
             entity: std::marker::PhantomData,
@@ -299,6 +339,10 @@ impl<T> QueryBuilder<'_, usize,T> {
     pub async fn exec(&self) -> Result<usize, ORMError> {
         log::debug!("{}", self.query);
         let conn = self.orm.conn.lock().await;
+        if conn.is_none() {
+            return Err(ORMError::NoConnection);
+        }
+        let conn = conn.as_ref().unwrap();
         let r = conn.execute(self.query.as_str(),(),)?;
         Ok(r)
     }
@@ -311,6 +355,10 @@ impl<T> QueryBuilder<'_, T,T> {
         log::debug!("{}", self.query);
         let r = {
             let conn = self.orm.conn.lock().await;
+            if conn.is_none() {
+                return Err(ORMError::NoConnection);
+            }
+            let conn = conn.as_ref().unwrap();
             let _r = conn.execute(self.query.as_str(),(),)?;
             let r = conn.last_insert_rowid();
             r
@@ -328,6 +376,10 @@ impl<T> QueryBuilder<'_, usize,T> {
     pub async fn run(&self) -> Result<usize, ORMError> {
         log::debug!("{}", self.query);
         let conn = self.orm.conn.lock().await;
+        if conn.is_none() {
+            return Err(ORMError::NoConnection);
+        }
+        let conn = conn.as_ref().unwrap();
         let r = conn.execute(self.query.as_str(),(),)?;
         Ok(r)
     }
@@ -376,6 +428,10 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
     {
         log::debug!("{}", self.query);
         let conn = self.orm.conn.lock().await;
+        if conn.is_none() {
+            return Err(ORMError::NoConnection);
+        }
+        let conn = conn.as_ref().unwrap();
         let mut stmt = conn.prepare( self.query.as_str())?;
         let mut result: Vec<Row> = Vec::new();
         let person_iter = stmt.query_map([], |row| {

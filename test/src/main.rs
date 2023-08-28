@@ -41,14 +41,14 @@ mod tests {
     #[tokio::test]
     async fn test() -> Result<(), ORMError> {
 
-        let file = std::path::Path::new("file.db");
+        let file = std::path::Path::new("file1.db");
         if file.exists() {
             std::fs::remove_file(file)?;
         }
 
         let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
 
-        let conn = ORM::connect("file.db".to_string())?;
+        let conn = ORM::connect("file1.db".to_string())?;
         let init_script = "create_table_1.sql";
         conn.init(init_script).await?;
 
@@ -95,6 +95,8 @@ mod tests {
 
         let updated_rows = conn.query_update("delete from user").exec().await?;
         log::debug!("updated_rows: {}", updated_rows);
+        conn.close().await?;
+
         Ok(())
     }
 
@@ -109,7 +111,7 @@ mod tests {
             pub age: i32,
         }
 
-        let file = std::path::Path::new("file.db");
+        let file = std::path::Path::new("file2.db");
         if file.exists() {
             std::fs::remove_file(file)?;
         }
@@ -121,7 +123,7 @@ mod tests {
             age: 30,
         };
 
-        let conn = ORM::connect("file.db".to_string())?;
+        let conn = ORM::connect("file2.db".to_string())?;
         let init_script = "create_table_1.sql";
         conn.init(init_script).await?;
         let user_from_db: User = conn.insert(user.clone()).apply().await?;
@@ -162,6 +164,7 @@ mod tests {
         log::debug!("{:?}", user_vec);
         let updated_rows = conn.query_update("delete from user").exec().await?;
         log::debug!("updated_rows: {}", updated_rows);
+        conn.close().await?;
         Ok(())
     }
 
@@ -169,23 +172,61 @@ mod tests {
 
     #[tokio::test]
     async fn test_async() -> Result<(), ORMError> {
-        let file = std::path::Path::new("file.db");
+        let file = std::path::Path::new("file3.db");
         if file.exists() {
             std::fs::remove_file(file)?;
         }
         let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
 
-        let conn = ORM::connect("file.db".to_string())?;
+        let conn = ORM::connect("file3.db".to_string())?;
 
         let runtime = tokio::runtime::Runtime::new().unwrap();
         let r = runtime.spawn(async move {
             let init_script = "create_table_1.sql";
             conn.init(init_script).await.unwrap();
+            conn.close().await.unwrap();
         });
         r.await.unwrap();
         std::mem::forget(runtime);
+
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_remove() -> Result<(), ORMError> {
+
+        #[derive(TableDeserialize, TableSerialize, Serialize, Deserialize, Debug, Clone,PartialEq)]
+        #[table(name = "user")]
+        pub struct User {
+            pub id: i32,
+            pub name: Option<String>,
+            pub age: i32,
+        }
+
+        let file = std::path::Path::new("file4.db");
+        if file.exists() {
+            std::fs::remove_file(file)?;
+        }
+
+        let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
+        let user = User {
+            id: 0,
+            name: Some("John".to_string()),
+            age: 30,
+        };
+
+        let conn = ORM::connect("file4.db".to_string())?;
+        let init_script = "create_table_1.sql";
+        conn.init(init_script).await?;
+        let user_from_db: User = conn.insert(user.clone()).apply().await?;
+        log::debug!("insert_id: {}", user_from_db.id);
+        let _updated_rows: usize = conn.remove(user_from_db.clone()).run().await?;
+        let user_opt: Option<User> = conn.find_one(format!("id = {}", user_from_db.id).as_str()).run().await?;
+        assert_eq!(None, user_opt);
+        conn.close().await?;
+        Ok(())
+    }
+
 
 }
 

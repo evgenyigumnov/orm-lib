@@ -11,6 +11,8 @@ struct Opts {
 
 #[proc_macro_derive(TableSerialize, attributes(table))]
 pub fn derive(input: TokenStream) -> TokenStream {
+    // println!("!!!!!!!!!!!!!");
+
     let input = parse_macro_input!(input);
     let opts = Opts::from_derive_input(&input).expect("Wrong options");
     let DeriveInput { ident, .. } = input;
@@ -18,6 +20,9 @@ pub fn derive(input: TokenStream) -> TokenStream {
         Some(x) => quote! {
             fn name(&self) -> String {
                 #x.to_string()
+            }
+            fn get_id(&self) -> String {
+                self.id.to_string()
             }
         },
         None => quote! {
@@ -33,6 +38,8 @@ pub fn derive(input: TokenStream) -> TokenStream {
             #answer
         }
     };
+    // println!("++++++++++++++++");
+    // println!("{}", output);
     output.into()
 }
 
