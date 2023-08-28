@@ -267,10 +267,10 @@ impl ORM {
         for c in input.chars() {
             match c {
                 '"' => escaped.push_str("\\\""),
-                // '\\' => escaped.push_str("\\\\"),
-                // '\n' => escaped.push_str("\\n"),
-                // '\r' => escaped.push_str("\\r"),
-                // '\t' => escaped.push_str("\\t"),
+                '\\' => escaped.push_str("\\\\"),
+                '\n' => escaped.push_str("\\n"),
+                '\r' => escaped.push_str("\\r"),
+                '\t' => escaped.push_str("\\t"),
                 // '\x08' => escaped.push_str("\\b"),
                 // '\x0C' => escaped.push_str("\\f"),
                 _ => escaped.push(c),

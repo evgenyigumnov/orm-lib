@@ -1,6 +1,6 @@
 [package]
 name = "ormlib_derive"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 
 authors = ["Evgeny Igumnov <igumnovnsk@gmail.com>"]

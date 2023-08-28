@@ -170,15 +170,21 @@ impl<'de> Deserializer<'de> {
             }
         }
 
-        if end_idx == 0 {
-            return Err(Error::Eof);
-        }
+        // if end_idx == 0 {
+        //     return Err(Error::Eof);
+        // }
 
         let s = &self.input[start_idx..end_idx];
         self.input = &self.input[end_idx + 1..];
 
         let r = s.to_string();
         let fixed_r = r.replace("\\\"", "\"");
+        let fixed_r = fixed_r.replace("\\r", "\r");
+        let fixed_r = fixed_r.replace("\\n", "\n");
+        let fixed_r = fixed_r.replace("\\t", "\t");
+        let fixed_r = fixed_r.replace("\\\\", "\\");
+        // println!("r: {}", r);
+        // println!("fixed_r: {}", fixed_r);
         Ok(fixed_r)
     }
 }
@@ -707,6 +713,7 @@ mod tests {
 
     #[test]
     fn test_struct() {
+
         #[derive(Deserialize, PartialEq, Debug)]
         struct Test {
             id: i32,
@@ -716,13 +723,29 @@ mod tests {
 
         }
 
-        let j = r#"{"id":"-222","id_positive":"1","name":"a","ud":"777"}"#;
+        #[derive( Deserialize, Debug, Clone)]
+        pub struct FileDescription {
+            pub id: i32,
+            pub path: String,
+            pub internal: Option<String>,
+            pub disk: String,
+            pub size: i32,
+            pub modified: i32,
+            pub content: Option<String>,
+        }
+        let j = r#"{"id":"25","path":"C:\\ODS\\~reserved.txt","internal":null,"disk":"C","size":"0","modified":"0","content":"  "}"#;
+        let r: FileDescription = from_str(j).unwrap();
+        let j = r#"{"id":"-222","id_positive":"1","name":"a\"\n\\","ud":"777"}"#;
         let expected = Test {
             id: -222,
             id_positive: 1,
-            name: "a".to_string(),
+            name:  "a\"\n\\".to_string(),
             ud: 777,
         };
+        // println!("{:?}", expected);
+                    let r: Test = from_str(j).unwrap();
+        // println!("{:?}", r);
+
         assert_eq!(expected, from_str(j).unwrap());
     }
 
