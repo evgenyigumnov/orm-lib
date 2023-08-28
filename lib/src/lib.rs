@@ -134,7 +134,7 @@ impl ORM {
             conn: Mutex::new(Some(conn)),
         }))
     }
-    pub fn insert<T>(&self, data: T) -> QueryBuilder<T, T>
+    pub fn add<T>(&self, data: T) -> QueryBuilder<T, T>
         where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Serialize + Debug + 'static
     {
         let table_name = data.name();
@@ -175,12 +175,12 @@ impl ORM {
         }
     }
 
-    pub fn find_one<T: TableDeserialize>(&self, query_where: &str) -> QueryBuilder<Option<T>, T>
+    pub fn find_one<T: TableDeserialize>(&self, id: u64) -> QueryBuilder<Option<T>, T>
     where T: TableDeserialize + TableSerialize + for<'a> Deserialize<'a> + 'static
     {
         let table_name = T::same_name();
 
-        let query: String = format!("select * from {table_name} where {query_where}");
+        let query: String = format!("select * from {table_name} where id = {id}");
 
         let qb = QueryBuilder::<Option<T>, T> {
             query,
@@ -224,14 +224,15 @@ impl ORM {
         qb
     }
 
-    pub fn update<T>(&self, data: T, query_where: &str) -> QueryBuilder<usize, ()>
+    pub fn modify<T>(&self, data: T) -> QueryBuilder<usize, ()>
         where T: TableDeserialize + TableSerialize + Serialize + 'static
     {
         let table_name = data.name();
         let key_value_str = serializer_key_values::to_string(&data).unwrap();
         // remove first and last char
         let key_value = &key_value_str[1..key_value_str.len()-1];
-        let query: String = format!("update {table_name} set {key_value} where {query_where}");
+        let id = data.get_id();
+        let query: String = format!("update {table_name} set {key_value} where id = {id}");
         let qb = QueryBuilder::<usize, ()> {
             query,
             entity: std::marker::PhantomData,
@@ -363,7 +364,11 @@ impl<T> QueryBuilder<'_, T,T> {
             let r = conn.last_insert_rowid();
             r
         };
-        let t_opt = self.orm.find_one(format!("rowid = {}", r).as_str()).run().await?;
+        let rows: Vec<T> = self.orm.find_many(format!("rowid = {}", r).as_str()).run().await?;
+        if rows.len() == 0 {
+            return Err(ORMError::InsertError);
+        }
+        let t_opt = rows.into_iter().next();
         match t_opt {
             Some(t) => Ok(t),
             None => Err(ORMError::InsertError),

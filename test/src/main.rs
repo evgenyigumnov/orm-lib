@@ -66,20 +66,20 @@ mod tests {
             age: 30,
         };
 
-        let mut user_from_db: User = conn.insert(user.clone()).apply().await?;
+        let mut user_from_db: User = conn.add(user.clone()).apply().await?;
 
         user.name = Some("Mary".to_string());
-        let  _: User = conn.insert(user.clone()).apply().await?;
+        let  _: User = conn.add(user.clone()).apply().await?;
 
         let query_where = format!("id = {}", user_from_db.id);
-        let user_opt: Option<User> = conn.find_one(query_where.as_str()).run().await?;
+        let user_opt: Option<User> = conn.find_one(user_from_db.id as u64).run().await?;
         log::debug!("User = {:?}", user_opt);
 
         let user_all: Vec<User> = conn.find_all().run().await?;
         log::debug!("Users = {:?}", user_all);
 
         user_from_db.name = Some("Mike".to_string());
-        let _updated_rows: usize = conn.update(user_from_db, query_where.as_str()).run().await?;
+        let _updated_rows: usize = conn.modify(user_from_db).run().await?;
 
 
         let user_many: Vec<User> = conn.find_many("id > 0").limit(2).run().await?;
@@ -126,7 +126,7 @@ mod tests {
         let conn = ORM::connect("file2.db".to_string())?;
         let init_script = "create_table_1.sql";
         conn.init(init_script).await?;
-        let user_from_db: User = conn.insert(user.clone()).apply().await?;
+        let user_from_db: User = conn.add(user.clone()).apply().await?;
         log::debug!("insert_id: {}", user_from_db.id);
         let _updated_rows: usize = conn.query_update("insert into user (id, age) values (2, 33)").exec().await?;
 
@@ -140,7 +140,7 @@ mod tests {
 
 
         let inseret_id = user_from_db.id;
-        let user_opt: Option<User> = conn.find_one(format!("id = {inseret_id}").as_str()).run().await?;
+        let user_opt: Option<User> = conn.find_one(inseret_id as u64).run().await?;
         log::debug!("{:?}", user_opt);
         let input = r#"Hello 'world'
          and "universe""#;
@@ -150,16 +150,16 @@ mod tests {
             name: Some(input.to_string()),
             age: 40,
         };
-        let new_user = conn.insert(user.clone()).apply().await?;
+        let new_user = conn.add(user.clone()).apply().await?;
         log::debug!("insert_id: {}", new_user.id);
-        let user_opt: Option<User> = conn.find_one(format!("id = 3").as_str()).run().await?;
+        let user_opt: Option<User> = conn.find_one(3).run().await?;
         assert_eq!(user_opt.unwrap().name.unwrap(), input);
 
         let user_vec: Vec<User> = conn.find_many("id > 0").limit(2).run().await?;
         log::debug!("{:?}", user_vec);
         let user_vec: Vec<User> = conn.find_all().run().await?;
         log::debug!("{:?}", user_vec);
-        let _updated_rows: usize = conn.update(user.clone(), "id = 1").run().await?;
+        let _updated_rows: usize = conn.modify(user.clone()).run().await?;
         let user_vec: Vec<User> = conn.find_all().run().await?;
         log::debug!("{:?}", user_vec);
         let updated_rows = conn.query_update("delete from user").exec().await?;
@@ -218,10 +218,10 @@ mod tests {
         let conn = ORM::connect("file4.db".to_string())?;
         let init_script = "create_table_1.sql";
         conn.init(init_script).await?;
-        let user_from_db: User = conn.insert(user.clone()).apply().await?;
+        let user_from_db: User = conn.add(user.clone()).apply().await?;
         log::debug!("insert_id: {}", user_from_db.id);
         let _updated_rows: usize = conn.remove(user_from_db.clone()).run().await?;
-        let user_opt: Option<User> = conn.find_one(format!("id = {}", user_from_db.id).as_str()).run().await?;
+        let user_opt: Option<User> = conn.find_one(user_from_db.id as u64).run().await?;
         assert_eq!(None, user_opt);
         conn.close().await?;
         Ok(())
