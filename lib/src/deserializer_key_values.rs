@@ -179,10 +179,10 @@ impl<'de> Deserializer<'de> {
 
         let r = s.to_string();
         let fixed_r = r.replace("\\\"", "\"");
-        let fixed_r = fixed_r.replace("\\r", "\r");
-        let fixed_r = fixed_r.replace("\\n", "\n");
-        let fixed_r = fixed_r.replace("\\t", "\t");
-        let fixed_r = fixed_r.replace("\\\\", "\\");
+        // let fixed_r = fixed_r.replace("\\r", "\r");
+        // let fixed_r = fixed_r.replace("\\n", "\n");
+        // let fixed_r = fixed_r.replace("\\t", "\t");
+       let fixed_r = fixed_r.replace("\\\\", "\\");
         // println!("r: {}", r);
         // println!("fixed_r: {}", fixed_r);
         Ok(fixed_r)
@@ -735,18 +735,45 @@ mod tests {
         }
         let j = r#"{"id":"25","path":"C:\\ODS\\~reserved.txt","internal":null,"disk":"C","size":"0","modified":"0","content":"  "}"#;
         let r: FileDescription = from_str(j).unwrap();
-        let j = r#"{"id":"-222","id_positive":"1","name":"a\"\n\\","ud":"777"}"#;
+        let j = r#"{"id":"-222","id_positive":"1","name":"a\"
+\\","ud":"777"}"#;
         let expected = Test {
             id: -222,
             id_positive: 1,
             name:  "a\"\n\\".to_string(),
             ud: 777,
         };
-        // println!("{:?}", expected);
+        println!("{:?}", expected);
                     let r: Test = from_str(j).unwrap();
-        // println!("{:?}", r);
+        println!("{:?}", r);
 
         assert_eq!(expected, from_str(j).unwrap());
     }
 
+
+    #[test]
+    fn test_escape() {
+
+        #[derive(Deserialize, PartialEq, Debug)]
+        struct Test {
+            id: i32,
+            id_positive: i32,
+            name: String,
+            ud: u64,
+
+        }
+
+        let j = r#"{"id":"-222","id_positive":"1","name":"c:\temp","ud":"777"}"#;
+        let expected = Test {
+            id: -222,
+            id_positive: 1,
+            name:  "c:\\temp".to_string(),
+            ud: 777,
+        };
+        println!("{:?}", expected);
+        let r: Test = from_str(j).unwrap();
+        println!("{:?}", r);
+
+        assert_eq!(expected, from_str(j).unwrap());
+    }
 }

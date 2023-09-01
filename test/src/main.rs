@@ -71,7 +71,6 @@ mod tests {
         user.name = Some("Mary".to_string());
         let  _: User = conn.add(user.clone()).apply().await?;
 
-        let query_where = format!("id = {}", user_from_db.id);
         let user_opt: Option<User> = conn.find_one(user_from_db.id as u64).run().await?;
         log::debug!("User = {:?}", user_opt);
 
@@ -142,8 +141,7 @@ mod tests {
         let inseret_id = user_from_db.id;
         let user_opt: Option<User> = conn.find_one(inseret_id as u64).run().await?;
         log::debug!("{:?}", user_opt);
-        let input = r#"Hello 'world'
-         and "universe""#;
+        let input = "Hello c:\\temp 'world' \r \t and \"universe\"";
 
         let user = User {
             id: 0,
@@ -153,7 +151,7 @@ mod tests {
         let new_user = conn.add(user.clone()).apply().await?;
         log::debug!("insert_id: {}", new_user.id);
         let user_opt: Option<User> = conn.find_one(3).run().await?;
-        assert_eq!(user_opt.unwrap().name.unwrap(), input);
+        assert_eq!(input, user_opt.unwrap().name.unwrap());
 
         let user_vec: Vec<User> = conn.find_many("id > 0").limit(2).run().await?;
         log::debug!("{:?}", user_vec);

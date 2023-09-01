@@ -289,7 +289,7 @@ impl ORM {
             match c {
                 // '\'' => escaped.push_str("\\'"),
                 '"' => escaped.push_str("\"\""),
-                // '\\' => escaped.push_str("\\\\"),
+                '\\' => escaped.push_str("\\\\"),
                 // '\n' => escaped.push_str("\\n"),
                 // '\r' => escaped.push_str("\\r"),
                 // '\t' => escaped.push_str("\\t"),
@@ -308,10 +308,10 @@ impl ORM {
         for c in input.chars() {
             match c {
                 '"' => escaped.push_str("\\\""),
-                '\\' => escaped.push_str("\\\\"),
-                '\n' => escaped.push_str("\\n"),
-                '\r' => escaped.push_str("\\r"),
-                '\t' => escaped.push_str("\\t"),
+                // '\\' => escaped.push_str("\\\\"),
+                // '\n' => escaped.push_str("\\n"),
+                // '\r' => escaped.push_str("\\r"),
+                // '\t' => escaped.push_str("\\t"),
                 // '\x08' => escaped.push_str("\\b"),
                 // '\x0C' => escaped.push_str("\\f"),
                 _ => escaped.push(c),
@@ -338,7 +338,7 @@ pub struct QueryBuilder<'a, T, V> {
 
 impl<T> QueryBuilder<'_, usize,T> {
     pub async fn exec(&self) -> Result<usize, ORMError> {
-        log::debug!("{}", self.query);
+        log::debug!("{:?}", self.query);
         let conn = self.orm.conn.lock().await;
         if conn.is_none() {
             return Err(ORMError::NoConnection);
@@ -353,7 +353,7 @@ impl<T> QueryBuilder<'_, T,T> {
     pub async fn apply(&self) -> Result<T, ORMError>
         where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Debug + 'static
     {
-        log::debug!("{}", self.query);
+        log::debug!("{:?}", self.query);
         let r = {
             let conn = self.orm.conn.lock().await;
             if conn.is_none() {
@@ -379,7 +379,7 @@ impl<T> QueryBuilder<'_, T,T> {
 
 impl<T> QueryBuilder<'_, usize,T> {
     pub async fn run(&self) -> Result<usize, ORMError> {
-        log::debug!("{}", self.query);
+        log::debug!("{:?}", self.query);
         let conn = self.orm.conn.lock().await;
         if conn.is_none() {
             return Err(ORMError::NoConnection);
@@ -431,7 +431,7 @@ where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static
 impl<R> QueryBuilder<'_, Vec<Row>,R> {
     pub async fn exec(&self) -> Result<Vec<Row>, ORMError>
     {
-        log::debug!("{}", self.query);
+        log::debug!("{:?}", self.query);
         let conn = self.orm.conn.lock().await;
         if conn.is_none() {
             return Err(ORMError::NoConnection);
