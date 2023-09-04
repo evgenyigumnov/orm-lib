@@ -303,23 +303,26 @@ impl ORM {
     }
 
     fn escape_json(input: &str) -> String {
-        let mut escaped = String::new();
+        let input = input.to_string();
+        let mut escaped = input.clone();
+        escaped = escaped.replace("\"", "\\\"");
+        escaped = escaped.replace("\\\"\\\\\"", "\\\"\\\"");
 
-        for c in input.chars() {
-            match c {
-                '"' => escaped.push_str("\\\""),
-                // '\\' => escaped.push_str("\\\\"),
-                // '\n' => escaped.push_str("\\n"),
-                // '\r' => escaped.push_str("\\r"),
-                // '\t' => escaped.push_str("\\t"),
-                // '\x08' => escaped.push_str("\\b"),
-                // '\x0C' => escaped.push_str("\\f"),
-                _ => escaped.push(c),
-            }
-        }
-
+        // for c in input.chars() {
+        //     match c {
+        //         '"' => escaped.push_str("\\\""),
+        //         // '\\' => escaped.push_str("\\\\"),
+        //         // '\n' => escaped.push_str("\\n"),
+        //         // '\r' => escaped.push_str("\\r"),
+        //         // '\t' => escaped.push_str("\\t"),
+        //         // '\x08' => escaped.push_str("\\b"),
+        //         // '\x0C' => escaped.push_str("\\f"),
+        //         _ => escaped.push(c),
+        //     }
+        // }
         escaped
     }
+
 
     pub async fn init(&self, script: &str) -> Result<(), ORMError>  {
         let query = std::fs::read_to_string(script)?;
@@ -437,7 +440,13 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
             return Err(ORMError::NoConnection);
         }
         let conn = conn.as_ref().unwrap();
-        let mut stmt = conn.prepare( self.query.as_str())?;
+        let mut stmt_result = conn.prepare( self.query.as_str());
+        if stmt_result.is_err() {
+            let e = stmt_result.err().unwrap();
+            log::error!("{:?}", e);
+            return Err(ORMError::RusqliteError(e));
+        }
+        let mut stmt = stmt_result.unwrap();
         let mut result: Vec<Row> = Vec::new();
         let person_iter = stmt.query_map([], |row| {
             let mut i = 0;
@@ -508,10 +517,19 @@ impl<T> QueryBuilder<'_, Vec<T>,T> {
                     i = i + 1;
                 }
                 let user_str = format!("{{{}}}", column_str.join(","));
-                // log::debug!("{}", user_str);
-                let user: T = deserializer_key_values::from_str(&user_str).unwrap();
+                // log::info!("{}", user_str);
+                let user_result: std::result::Result<T, serializer_error::Error> = deserializer_key_values::from_str(&user_str);
+                match user_result {
+                    Ok(user) => {
+                        result.push(user);
+                    }
+                    Err(e) => {
+                        log::error!("{:?}", e);
+                        log::error!("{}", user_str);
+                        return Err(ORMError::Unknown);
+                    }
+                }
 
-                result.push(user);
             }
 
             Ok(result)
@@ -520,7 +538,7 @@ impl<T> QueryBuilder<'_, Vec<T>,T> {
     pub fn limit(&self, limit: i32) -> QueryBuilder<Vec<T>, T> {
 
         let qb =  QueryBuilder::<Vec<T>,T> {
-            query: format!("{} LIMIT {}", self.query, limit),
+            query: format!("{} limit {}", self.query, limit),
             entity: std::marker::PhantomData,
             orm: self.orm,
             result: std::marker::PhantomData,
