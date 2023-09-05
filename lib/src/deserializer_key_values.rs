@@ -602,6 +602,7 @@ impl<'de, 'a> MapAccess<'de> for CommaSeparated<'a, 'de> {
             return Ok(None);
         }
         // Comma is required before every entry except the first.
+        // println!("{}", self.de.next_char()?);
         if !self.first && self.de.next_char()? != ',' {
             return Err(Error::ExpectedMapComma);
         }
@@ -763,11 +764,11 @@ mod tests {
 
         }
 
-        let j = r#"{"id":"-222","id_positive":"1","name":"c:\temp","ud":"777"}"#;
+        let j = r#"{"id":"-222","id_positive":"1","name":"c:\temp:","ud":"777"}"#;
         let expected = Test {
             id: -222,
             id_positive: 1,
-            name:  "c:\\temp".to_string(),
+            name:  "c:\\temp:".to_string(),
             ud: 777,
         };
         println!("{:?}", expected);
@@ -775,5 +776,392 @@ mod tests {
         println!("{:?}", r);
 
         assert_eq!(expected, from_str(j).unwrap());
+    }
+
+    // #[test]
+    fn test_more() {
+        let str = "{\"id\":\"15\",\"path\":\"C:\\$SysReset\\Logs\\diagwrn.xml\",\"internal\":null,\"mime_type\":\"application/xml\",\"disk\":\"C\",\"size\":\"47278\",\"modified\":\"1679648060\",\"content\":\"<xml xmlns:s=\\\"uuid:BDC6E3F0-6DA3-11d1-A2A3-00AA00C14882\\\"
+     xmlns:dt=\\\"uuid:C2F41010-65B3-11d1-A29F-00AA00C14882\\\"
+     xmlns:rs=\\\"urn:schemas-microsoft-com:rowset\\\"
+     xmlns:z=\\\"#RowsetSchema\\\">
+    <s:Schema id=\\\"RowsetSchema\\\">
+    <s:ElementType name=\\\"row\\\" content=\\\"eltOnly\\\" rs:updatable=\\\"true\\\">
+    <s:AttributeType name=\\\"Cls\\\" rs:number=\\\"0\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Sev\\\" rs:number=\\\"1\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Maj\\\" rs:number=\\\"2\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Min\\\" rs:number=\\\"3\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"LN\\\" rs:number=\\\"4\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fil\\\" rs:number=\\\"5\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fun\\\" rs:number=\\\"6\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Uid\\\" rs:number=\\\"7\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Msg\\\" rs:number=\\\"8\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"PID\\\" rs:number=\\\"9\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"TID\\\" rs:number=\\\"10\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Con\\\" rs:number=\\\"11\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Exe\\\" rs:number=\\\"12\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Mod\\\" rs:number=\\\"13\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Err\\\" rs:number=\\\"14\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"MD\\\" rs:number=\\\"15\\\">
+    <s:datatype dt:type=\\\"hexBinary\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"DT\\\" rs:number=\\\"16\\\">
+    <s:datatype dt:type=\\\"dateTime\\\"/>
+    </s:AttributeType>
+    </s:ElementType>
+    </s:Schema>
+    <rs:data>
+    </rs:data>
+    </xml>
+    <xml xmlns:s=\\\"uuid:BDC6E3F0-6DA3-11d1-A2A3-00AA00C14882\\\"
+     xmlns:dt=\\\"uuid:C2F41010-65B3-11d1-A29F-00AA00C14882\\\"
+     xmlns:rs=\\\"urn:schemas-microsoft-com:rowset\\\"
+     xmlns:z=\\\"#RowsetSchema\\\">
+    <s:Schema id=\\\"RowsetSchema\\\">
+    <s:ElementType name=\\\"row\\\" content=\\\"eltOnly\\\" rs:updatable=\\\"true\\\">
+    <s:AttributeType name=\\\"Cls\\\" rs:number=\\\"0\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Sev\\\" rs:number=\\\"1\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Maj\\\" rs:number=\\\"2\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Min\\\" rs:number=\\\"3\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"LN\\\" rs:number=\\\"4\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fil\\\" rs:number=\\\"5\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fun\\\" rs:number=\\\"6\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Uid\\\" rs:number=\\\"7\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Msg\\\" rs:number=\\\"8\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"PID\\\" rs:number=\\\"9\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"TID\\\" rs:number=\\\"10\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Con\\\" rs:number=\\\"11\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Exe\\\" rs:number=\\\"12\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Mod\\\" rs:number=\\\"13\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Err\\\" rs:number=\\\"14\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"MD\\\" rs:number=\\\"15\\\">
+    <s:datatype dt:type=\\\"hexBinary\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"DT\\\" rs:number=\\\"16\\\">
+    <s:datatype dt:type=\\\"dateTime\\\"/>
+    </s:AttributeType>
+    </s:ElementType>
+    </s:Schema>
+    <rs:data>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070002 in PbrGetOSMetadata (base\\reset\\engine\\scenario\\src\\sensetargetos.cpp:408): Failed to read Compact value from target OS, assuming not compact\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:50\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070001 in PushButtonReset::WofOverlay::EnumOverlays (base\\reset\\util\\src\\wofoverlay.cpp:64): WofEnumEntries failed, assuming no overlays on volume [\\\\?\\Volume{3a642dc6-ed52-4bd2-9229-b048c85196e8}]\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"1\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:51\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"127\\\" Fil=\\\"\\\" Fun=\\\"IsNarratorRunning\\\" Uid=\\\"50331648\\\" Msg=\\\"IsNarratorRunning: Error finding window NarratorUIClass; HR = 0x80070002\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:51\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070002 in PbrSenseNarrator (base\\reset\\engine\\scenario\\src\\sensemisc.cpp:321): Failed to query whether narrator is running\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:51\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070490 in PushButtonReset::TestFlag::Get (base\\reset\\engine\\session\\src\\testflag.cpp:50): Test flag not set: [FormatExclude]\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"234\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:51\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] RegOpenKeyEx(GP) failed: 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:51\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] WinReGetGroupPolicies failed with error code 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:51\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] NOTE: overwrite error code 0x2 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:51\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Clear storage reserve] ([ClearStorageReserve]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [-5379440640] bytes, leaving [961550602240] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [-5368451072] bytes, leaving [961539612672] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"7615\\\" Fil=\\\"\\\" Fun=\\\"pGetAntiVirusInfo\\\" Uid=\\\"51150848\\\" Msg=\\\"Failed to connect securitycenter2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"332\\\" Fil=\\\"\\\" Fun=\\\"CSetupOneSetting::InitializeAndQuery\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to Query Onesettings: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"122\\\" Fil=\\\"\\\" Fun=\\\"CreateSetupOneSettings\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to initialize and query: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"405\\\" Fil=\\\"\\\" Fun=\\\"CSetupPlatformTracing::ReadTracingOneSettings\\\" Uid=\\\"50331648\\\" Msg=\\\"Failed to create OneSettings infrastructure. Error: 0x0880072EE7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"528\\\" Fil=\\\"\\\" Fun=\\\"CSetupPlatformTracing::Initialize\\\" Uid=\\\"50331648\\\" Msg=\\\"No onesetting configured or error getting onesetting\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"14237\\\" Fil=\\\"\\\" Fun=\\\"CSetupPlatform::Initialize\\\" Uid=\\\"51150848\\\" Msg=\\\"CSetupPlatform::Initialize: Failed to initialize tracing\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"203\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:53\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Delete OS uninstall image] ([DeleteUninstall]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [0] bytes, leaving [961539612672] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [57344] bytes, leaving [961539555328] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070005 in PushButtonReset::Directory::EnumExcept (base\\reset\\util\\src\\filesystem.cpp:2008): Failed to check whether [C:\\hiberfil.sys] is a child path of [C:\\DumpStack.log.tmp], assuming no\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"5\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070005 in PushButtonReset::Directory::EnumExcept (base\\reset\\util\\src\\filesystem.cpp:2008): Failed to check whether [C:\\hiberfil.sys] is a child path of [C:\\pagefile.sys], assuming no\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"5\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070005 in PushButtonReset::Directory::EnumExcept (base\\reset\\util\\src\\filesystem.cpp:2008): Failed to check whether [C:\\hiberfil.sys] is a child path of [C:\\swapfile.sys], assuming no\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"5\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Archive user data files] ([ArchiveUserData]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [0] bytes, leaving [961539555328] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [8192] bytes, leaving [961539547136] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"7615\\\" Fil=\\\"\\\" Fun=\\\"pGetAntiVirusInfo\\\" Uid=\\\"51150848\\\" Msg=\\\"Failed to connect securitycenter2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"332\\\" Fil=\\\"\\\" Fun=\\\"CSetupOneSetting::InitializeAndQuery\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to Query Onesettings: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"122\\\" Fil=\\\"\\\" Fun=\\\"CreateSetupOneSettings\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to initialize and query: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"405\\\" Fil=\\\"\\\" Fun=\\\"CSetupPlatformTracing::ReadTracingOneSettings\\\" Uid=\\\"50331648\\\" Msg=\\\"Failed to create OneSettings infrastructure. Error: 0x0880072EE7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"528\\\" Fil=\\\"\\\" Fun=\\\"CSetupPlatformTracing::Initialize\\\" Uid=\\\"50331648\\\" Msg=\\\"No onesetting configured or error getting onesetting\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"14237\\\" Fil=\\\"\\\" Fun=\\\"CSetupPlatform::Initialize\\\" Uid=\\\"51150848\\\" Msg=\\\"CSetupPlatform::Initialize: Failed to initialize tracing\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"203\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:54\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"332\\\" Fil=\\\"\\\" Fun=\\\"CSetupOneSetting::InitializeAndQuery\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to Query Onesettings: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:55\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"122\\\" Fil=\\\"\\\" Fun=\\\"CreateSetupOneSettings\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to initialize and query: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:55\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"4079\\\" Fil=\\\"\\\" Fun=\\\"CNewSystem::PreInitialize\\\" Uid=\\\"51150848\\\" Msg=\\\"Failed to create OneSettings infrastructure. Error: 0x0880072EE7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:55\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"332\\\" Fil=\\\"\\\" Fun=\\\"CSetupOneSetting::InitializeAndQuery\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to Query Onesettings: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"122\\\" Fil=\\\"\\\" Fun=\\\"CreateSetupOneSettings\\\" Uid=\\\"50331648\\\" Msg=\\\"Onesettings: Failed to initialize and query: 0x80072ee7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5274\\\" Fil=\\\"\\\" Fun=\\\"CNewSystem::QueueOperations\\\" Uid=\\\"51150848\\\" Msg=\\\"Failed to create OneSettings infrastructure. Error: 0x0880072EE7\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"1030\\\" Fil=\\\"\\\" Fun=\\\"SPDeleteOldUpgradeSnapshots\\\" Uid=\\\"51150848\\\" Msg=\\\"SPDeleteOldUpgradeSnapshots: Cannot open snapshot key, assume not exist. Error: 0x00000002\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:01:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"1030\\\" Fil=\\\"\\\" Fun=\\\"SPDeleteOldUpgradeSnapshots\\\" Uid=\\\"51150848\\\" Msg=\\\"    SPDeleteOldUpgradeSnapshots: Cannot open snapshot key, assume not exist. Error: 0x00000002\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:02:00\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 8192 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:02:00\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 532480 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:06:46\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 12288 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:06:46\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 8192 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:06:47\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 8192 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:06:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"3793\\\" Fil=\\\"\\\" Fun=\\\"SPCalculateDriveMappings\\\" Uid=\\\"51150848\\\" Msg=\\\"    SPCalculateDriveMappings: C:\\ already maps to C:\\, ignoring the newer mapping C:\\\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:06:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 36864 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:06:52\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 4096 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:06:52\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"420\\\" Fil=\\\"\\\" Fun=\\\"CGlobalPath::FindGlobalPathCallback\\\" Uid=\\\"51150848\\\" Msg=\\\"    FindGlobalPath: Cannot find volume name for \\\\?\\GLOBALROOT\\Device\\HardDisk0\\Partition2. Error: 0x0000001F\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"31\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:09\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 149057536 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:35\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 262144 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:45\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 1208320 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:45\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 29331456 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:46\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 28672 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:46\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"3194\\\" Fil=\\\"\\\" Fun=\\\"SPMoveFileWithShortName\\\" Uid=\\\"51150848\\\" Msg=\\\"    SPMoveFileWithShortName: Failed to move C:\\inetpub to C:\\Windows.old\\inetpub, error: 0x00000002\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:47\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"3194\\\" Fil=\\\"\\\" Fun=\\\"SPMoveFileWithShortName\\\" Uid=\\\"51150848\\\" Msg=\\\"    SPMoveFileWithShortName: Failed to move C:\\SkyDriveTemp to C:\\Windows.old\\SkyDriveTemp, error: 0x00000002\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:47\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 8192 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:47\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"214\\\" Fil=\\\"\\\" Fun=\\\"CAddProvisioningPackage::DoExecute\\\" Uid=\\\"51150848\\\" Msg=\\\"    CAddProvisioningPackage::DoExecute: Failed to initialize COM security. Was it initialized before us? hr = 0x80010119\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"183\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:47\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 274432 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:47\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 65536 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:47\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"5103\\\" Fil=\\\"\\\" Fun=\\\"COperationQueue::ExecuteOperationsInternal\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACEEXCEED: Operation consumed more disk space than declared. Exceeded by 8388608 bytes\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"12967\\\" Fil=\\\"\\\" Fun=\\\"CNewSystem::Finalize\\\" Uid=\\\"51150848\\\" Msg=\\\"DISKSPACETRACK: Size of SafeOS WIM C:\\$WINDOWS.~BT\\Sources\\SafeOS\\winre.wim is 0\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"SetupPlatform.dll\\\" Err=\\\"183\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070005 in PushButtonReset::OpExecSetup::InternalExecute (base\\reset\\engine\\operations\\src\\execsetup.cpp:2308): Failed to move log directory\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"5\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"236\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::TraceErr\\\" Uid=\\\"50331648\\\" Msg=\\\"0x80070020 in PushButtonReset::OpMigrateSettings::MigrateFiles (base\\reset\\engine\\operations\\src\\migratesettings.cpp:987): Failed to copy file [C:\\Windows.old\\Windows\\containers\\serviced\\WindowsDefenderApplicationGuard.wim] to [C:\\Windows\\containers\\serviced\\WindowsDefenderApplicationGuard.wim]\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"32\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:49\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Execute PBR plugins] ([ExecutePbrPlugin]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:50\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [0] bytes, leaving [960654041088] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:50\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [1310720] bytes, leaving [960652730368] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:50\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Migrate AppX Provisioned Apps] ([MigrateProvisionedApps]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [0] bytes, leaving [960652730368] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [24829952] bytes, leaving [960627900416] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] failed to get child attribute by tag: 0xd\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] ReAgentConfig::ReadBcdAndUpdateEnhancedConfigInfo GetOsInfoForBootEntry returned 0x2 \\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  failed to add trailing back slash to string  (0x57) in file base\\diagnosis\\srt\\reagent2\\reinfo\\shared.cpp line 873\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  overwrites error code 0x57 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  failed to add trailing back slash to string  (0x57) in file base\\diagnosis\\srt\\reagent2\\reinfo\\shared.cpp line 873\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  overwrites error code 0x57 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  failed to add trailing back slash to string  (0x57) in file base\\diagnosis\\srt\\reagent2\\reinfo\\shared.cpp line 873\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  overwrites error code 0x57 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  failed to add trailing back slash to string  (0x57) in file base\\diagnosis\\srt\\reagent2\\reinfo\\shared.cpp line 873\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  overwrites error code 0x57 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  failed to add trailing back slash to string  (0x57) in file base\\diagnosis\\srt\\reagent2\\reinfo\\shared.cpp line 873\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  overwrites error code 0x57 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  failed to add trailing back slash to string  (0x57) in file base\\diagnosis\\srt\\reagent2\\reinfo\\shared.cpp line 873\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe]  overwrites error code 0x57 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] WinReRestoreConfigAfterPBR Failed to find a recovery image\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Restore WinRE information] ([RestoreWinRE]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [0] bytes, leaving [960627900416] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [32768] bytes, leaving [960627867648] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] read xml file (C:\\Recovery\\ReAgentOld.xml) failed: 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] ReAgentXMLParser::ParseConfigFile failed to read config xml file (0x2) in file base\\diagnosis\\srt\\reagent2\\reinfo\\parser_2.0.cpp line 825\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] ReAgentXMLParser::ParseConfigFile (xml file: C:\\Recovery\\ReAgentOld.xml) returning 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] Failed to get recovery entries: 0xc0000225\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Install WinRE on target OS] ([InstallWinRE]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [0] bytes, leaving [960627867648] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [4096] bytes, leaving [960627863552] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:07:58\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] RegOpenKeyEx(GP) failed: 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:08:02\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] WinReGetGroupPolicies failed with error code 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:08:02\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] NOTE: overwrite error code 0x2 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:08:02\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Delete old OS files] ([DeleteOldOS]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:10:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [-68206202880] bytes, leaving [1032894144512] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:10:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [-15929724928] bytes, leaving [980617666560] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:10:48\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"Operation [Decrypt disk [0] partition offset [290455552]] ([DecryptVolume]) consumed more disk space than expected\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:12:33\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Expected to use [0] bytes, leaving [980617666560] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:12:33\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"169\\\" Fil=\\\"\\\" Fun=\\\"PushButtonReset::Logging::Trace\\\" Uid=\\\"50331648\\\" Msg=\\\"-&gt; Actually used [835584] bytes, leaving [980616830976] bytes free\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ResetEngine.dll\\\" Err=\\\"2\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:12:33\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] RegOpenKeyEx(GP) failed: 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:12:33\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] WinReGetGroupPolicies failed with error code 0x2\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:12:33\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[sysreset.exe] NOTE: overwrite error code 0x2 because it is not critical\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:12:33\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"215\\\" Fil=\\\"\\\" Fun=\\\"DoTraceMessage\\\" Uid=\\\"50331648\\\" Msg=\\\"StopUserModeTrace failed\\\" PID=\\\"1516\\\" TID=\\\"1520\\\" Con=\\\"\\\" Exe=\\\"X:\\windows\\system32\\sysreset.exe\\\" Mod=\\\"\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:12:34\\\"/>
+    </rs:data>
+    </xml>
+    <xml xmlns:s=\\\"uuid:BDC6E3F0-6DA3-11d1-A2A3-00AA00C14882\\\"
+     xmlns:dt=\\\"uuid:C2F41010-65B3-11d1-A29F-00AA00C14882\\\"
+     xmlns:rs=\\\"urn:schemas-microsoft-com:rowset\\\"
+     xmlns:z=\\\"#RowsetSchema\\\">
+    <s:Schema id=\\\"RowsetSchema\\\">
+    <s:ElementType name=\\\"row\\\" content=\\\"eltOnly\\\" rs:updatable=\\\"true\\\">
+    <s:AttributeType name=\\\"Cls\\\" rs:number=\\\"0\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Sev\\\" rs:number=\\\"1\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Maj\\\" rs:number=\\\"2\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Min\\\" rs:number=\\\"3\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"LN\\\" rs:number=\\\"4\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fil\\\" rs:number=\\\"5\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fun\\\" rs:number=\\\"6\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Uid\\\" rs:number=\\\"7\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Msg\\\" rs:number=\\\"8\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"PID\\\" rs:number=\\\"9\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"TID\\\" rs:number=\\\"10\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Con\\\" rs:number=\\\"11\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Exe\\\" rs:number=\\\"12\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Mod\\\" rs:number=\\\"13\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Err\\\" rs:number=\\\"14\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"MD\\\" rs:number=\\\"15\\\">
+    <s:datatype dt:type=\\\"hexBinary\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"DT\\\" rs:number=\\\"16\\\">
+    <s:datatype dt:type=\\\"dateTime\\\"/>
+    </s:AttributeType>
+    </s:ElementType>
+    </s:Schema>
+    <rs:data>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[ResetEngine.exe] RegOpenKeyEx(GP) failed: 0x2\\\" PID=\\\"8432\\\" TID=\\\"8436\\\" Con=\\\"\\\" Exe=\\\"C:\\Windows\\System32\\ResetEngine.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:16:50\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[ResetEngine.exe] WinReGetGroupPolicies failed with error code 0x2\\\" PID=\\\"8432\\\" TID=\\\"8436\\\" Con=\\\"\\\" Exe=\\\"C:\\Windows\\System32\\ResetEngine.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:16:50\\\"/>
+    <z:row Cls=\\\"D\\\" Sev=\\\"50331648\\\" Maj=\\\"Def\\\" Min=\\\"Def\\\" LN=\\\"472\\\" Fil=\\\"\\\" Fun=\\\"UnattendLogWV\\\" Uid=\\\"50331648\\\" Msg=\\\"[ResetEngine.exe] NOTE: overwrite error code 0x2 because it is not critical\\\" PID=\\\"8432\\\" TID=\\\"8436\\\" Con=\\\"\\\" Exe=\\\"C:\\Windows\\System32\\ResetEngine.exe\\\" Mod=\\\"ReAgent.dll\\\" Err=\\\"0\\\" MD=\\\"\\\" DT=\\\"2022-12-05T15:16:50\\\"/>
+    </rs:data>
+    </xml>
+    <xml xmlns:s=\\\"uuid:BDC6E3F0-6DA3-11d1-A2A3-00AA00C14882\\\"
+     xmlns:dt=\\\"uuid:C2F41010-65B3-11d1-A29F-00AA00C14882\\\"
+     xmlns:rs=\\\"urn:schemas-microsoft-com:rowset\\\"
+     xmlns:z=\\\"#RowsetSchema\\\">
+    <s:Schema id=\\\"RowsetSchema\\\">
+    <s:ElementType name=\\\"row\\\" content=\\\"eltOnly\\\" rs:updatable=\\\"true\\\">
+    <s:AttributeType name=\\\"Cls\\\" rs:number=\\\"0\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Sev\\\" rs:number=\\\"1\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Maj\\\" rs:number=\\\"2\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Min\\\" rs:number=\\\"3\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"LN\\\" rs:number=\\\"4\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fil\\\" rs:number=\\\"5\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Fun\\\" rs:number=\\\"6\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Uid\\\" rs:number=\\\"7\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Msg\\\" rs:number=\\\"8\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"PID\\\" rs:number=\\\"9\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"TID\\\" rs:number=\\\"10\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Con\\\" rs:number=\\\"11\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Exe\\\" rs:number=\\\"12\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Mod\\\" rs:number=\\\"13\\\">
+    <s:datatype dt:type=\\\"string\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"Err\\\" rs:number=\\\"14\\\">
+    <s:datatype dt:type=\\\"int\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"MD\\\" rs:number=\\\"15\\\">
+    <s:datatype dt:type=\\\"hexBinary\\\"/>
+    </s:AttributeType>
+    <s:AttributeType name=\\\"DT\\\" rs:number=\\\"16\\\">
+    <s:datatype dt:type=\\\"dateTime\\\"/>
+    </s:AttributeType>
+    </s:ElementType>
+    </s:Schema>
+    <rs:data>
+    </rs:data>
+    </xml>
+
+    \"}";
+
+        #[derive( Deserialize, Debug, Clone)]
+        pub struct FileDescription {
+            pub id: i32,
+            pub path: String,
+            pub internal: Option<String>,
+            pub disk: String,
+            pub size: i32,
+            pub modified: i32,
+            pub content: Option<String>,
+        }
+        let new_str = str.replace("\n", "\\n");
+        println!("{}", new_str);
+        let r: FileDescription = from_str(new_str.as_str()).unwrap();
+
     }
 }

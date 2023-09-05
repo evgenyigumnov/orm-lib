@@ -289,7 +289,7 @@ impl ORM {
             match c {
                 // '\'' => escaped.push_str("\\'"),
                 '"' => escaped.push_str("\"\""),
-                '\\' => escaped.push_str("\\\\"),
+                // '\\' => escaped.push_str("\\\\"),
                 // '\n' => escaped.push_str("\\n"),
                 // '\r' => escaped.push_str("\\r"),
                 // '\t' => escaped.push_str("\\t"),
@@ -305,8 +305,9 @@ impl ORM {
     fn escape_json(input: &str) -> String {
         let input = input.to_string();
         let mut escaped = input.clone();
+        escaped = escaped.replace("\\", "\\\\");
         escaped = escaped.replace("\"", "\\\"");
-        escaped = escaped.replace("\\\"\\\\\"", "\\\"\\\"");
+        // escaped = escaped.replace("\\\"\\\\\"", "\\\"\\\"");
 
         // for c in input.chars() {
         //     match c {
