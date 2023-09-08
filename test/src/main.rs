@@ -78,13 +78,13 @@ mod tests {
         log::debug!("Users = {:?}", user_all);
 
         user_from_db.name = Some("Mike".to_string());
-        let _updated_rows: usize = conn.modify(user_from_db).run().await?;
+        let _updated_rows: usize = conn.modify(user_from_db.clone()).run().await?;
 
 
         let user_many: Vec<User> = conn.find_many("id > 0").limit(2).run().await?;
         log::debug!("Users = {:?}", user_many);
 
-        let query = format!("select * from user where name like {}", conn.protect("%oh%"));
+        let query = format!("select * from user where name like {}", conn.protect("M%"));
         let result_set: Vec<Row> = conn.query(query.as_str()).exec().await?;
         for row in result_set {
             let id: i32 = row.get(0).unwrap();
@@ -92,7 +92,9 @@ mod tests {
             log::debug!("User = id: {}, name: {:?}", id, name);
         }
 
-        let updated_rows = conn.query_update("delete from user").exec().await?;
+        let updated_rows = conn.query_update("update user set age = 100").exec().await?;
+        log::debug!("updated_rows: {}", updated_rows);
+        let updated_rows: usize = conn.remove(user_from_db.clone()).run().await?;
         log::debug!("updated_rows: {}", updated_rows);
         conn.close().await?;
 

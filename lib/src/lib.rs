@@ -441,7 +441,7 @@ impl<R> QueryBuilder<'_, Vec<Row>,R> {
             return Err(ORMError::NoConnection);
         }
         let conn = conn.as_ref().unwrap();
-        let mut stmt_result = conn.prepare( self.query.as_str());
+        let stmt_result = conn.prepare( self.query.as_str());
         if stmt_result.is_err() {
             let e = stmt_result.err().unwrap();
             log::error!("{:?}", e);
