@@ -1,15 +1,44 @@
-//! # Actorlib SDK
+//! # Ormlib SDK
 //! This is the Rust SDK for ORMlib.
 //!
 //! ## Usage
+//!
+//! ```toml
+//! [dependencies]
+//! ormlib = "0.3.1"
+//! ormlib_derive = "0.3.1"
+//! ```
+//!
 //! ```rust
-//!use ormlib::*;
-//!
-//! #[tokio::main]
-//! async fn main() -> Result<(), std::io::Error> {
-//!
-//!    Ok(())
+//! use ormlib::*;
+//! use serde_derive::{Deserialize, Serialize};
+//! use ormlib_derive::{TableDeserialize, TableSerialize};
+//! async fn test() -> Result<(), ORMError> {
+//!    let file = std::path::Path::new("file1.db");
+//!    if file.exists() {
+//!     std::fs::remove_file(file)?;
+//!    }
+//!    let conn = ORM::connect("file1.db".to_string())?;
+//!    let init_script = "create_table_1.sql";
+//!    conn.init(init_script).await?;
+//!    #[derive(TableDeserialize, TableSerialize, Serialize, Deserialize, Debug, Clone)]
+//!    #[table(name = "user")]
+//!    pub struct User {
+//!      pub id: i32,
+//!      pub name: Option<String>,
+//!      pub age: i32,
+//!    }
+//!   let user = User {
+//!    id: 0,
+//!    name: Some("test".to_string()),
+//!    age: 22,
+//!   };
+//!   let user = conn.add(user).apply().await?;
+//!   println!("ID = {}", user.id);
+//!   Ok(())
 //! }
+//! ```
+
 
 mod serializer_error;
 mod serializer_types;
