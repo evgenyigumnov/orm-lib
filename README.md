@@ -15,8 +15,8 @@ Cargo.toml
 
 ```toml
 [dependencies]
-ormlib = {version = "1.0.0", features = ["sqlite"]} # or "mysql"
-ormlib_derive = "1.0.0"
+ormlib = {version = "1.0.1", features = ["sqlite"]} # or "mysql"
+ormlib_derive = "1.0.1"
 ```
 
 ```rust
