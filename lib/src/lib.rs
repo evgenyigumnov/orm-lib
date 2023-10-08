@@ -2,15 +2,8 @@
 //! This is the Rust SDK for ORMlib.
 //!
 //! ## Usage
-//!
-//! ```toml
-//! [dependencies]
-//! ormlib = "0.3.1"
-//! ormlib_derive = "0.3.1"
-//! ```
-//!
-//! ```rust
-//! ```
+//!  https://crates.io/crates/ormlib
+
 
 
 mod serializer_error;
