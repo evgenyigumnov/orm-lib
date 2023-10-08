@@ -262,7 +262,7 @@ impl<T> QueryBuilder<'_, T,T, ORM>{
             r.unwrap()
 
         };
-        let rows: Vec<T> = self.orm.find_many(format!("rowid = {}", r).as_str()).run().await?;
+        let rows: Vec<T> = self.orm.find_many(format!("id = {}", r).as_str()).run().await?;
         if rows.len() == 0 {
             return Err(ORMError::InsertError);
         }
@@ -348,10 +348,14 @@ impl<R> QueryBuilder<'_, Vec<Row>,R, ORM> {
             column.column_type().is_numeric_type()
         }).collect();
         let mut result: Vec<Row> = Vec::new();
+        // println!("{:?}", columns_type);
         stmt.for_each(|row| {
             let mut i = 0;
             let mut r: Row = Row::new();
             loop {
+                if i > columns_type.len() - 1 {
+                    break;
+                }
                 if columns_type[i] {
                     let res: Option<i32>= row.get(i);
                     if res.is_none() {
@@ -389,6 +393,7 @@ impl<T> QueryBuilder<'_, Vec<T>,T, ORM> {
         for row in rows {
             let mut column_str: Vec<String> = Vec::new();
             let mut i = 0;
+            // println!("{:?}", row);
             for column in columns.iter() {
                 let value_opt:Option<String> = row.get(i);
                 let value = match value_opt {
