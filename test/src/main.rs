@@ -50,7 +50,7 @@ mod tests {
         let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
 
         let conn = ORM::connect("file1.db".to_string())?;
-        let init_script = "create_table_1.sql";
+        let init_script = "create_table_sqlite.sql";
         conn.init(init_script).await?;
 
         #[derive(TableDeserialize, TableSerialize, Serialize, Deserialize, Debug, Clone)]
@@ -126,7 +126,7 @@ mod tests {
         };
 
         let conn = ORM::connect("file2.db".to_string())?;
-        let init_script = "create_table_1.sql";
+        let init_script = "create_table_sqlite.sql";
         conn.init(init_script).await?;
         let user_from_db: User = conn.add(user.clone()).apply().await?;
         log::debug!("insert_id: {}", user_from_db.id);
@@ -183,7 +183,7 @@ mod tests {
 
         let runtime = tokio::runtime::Runtime::new().unwrap();
         let r = runtime.spawn(async move {
-            let init_script = "create_table_1.sql";
+            let init_script = "create_table_sqlite.sql";
             conn.init(init_script).await.unwrap();
             conn.close().await.unwrap();
         });
@@ -217,7 +217,7 @@ mod tests {
         };
 
         let conn = ORM::connect("file4.db".to_string())?;
-        let init_script = "create_table_1.sql";
+        let init_script = "create_table_sqlite.sql";
         conn.init(init_script).await?;
         let user_from_db: User = conn.add(user.clone()).apply().await?;
         log::debug!("insert_id: {}", user_from_db.id);
@@ -233,8 +233,8 @@ mod tests {
     async fn test_mysql() -> Result<(), ORMError> {
 
         let conn = ormlib::mysql::ORM::connect("mysql://root:root@192.168.145.128:3306/tests".to_string()).await?;
-        let init_script = "create_table_1.sql";
-        conn.init(init_script).await?;
+        let init_script = "create_table_mysql.sql";
+        let _ = conn.init(init_script).await;
         conn.close().await?;
         Ok(())
     }

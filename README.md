@@ -29,7 +29,7 @@ async fn test() -> Result<(), ORMError> {
     let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
 
     let conn = ORM::connect("file1.db".to_string())?;
-    let init_script = "create_table_1.sql";
+    let init_script = "create_table_sqlite.sql";
     conn.init(init_script).await?;
 
     #[derive(TableDeserialize, TableSerialize, Serialize, Deserialize, Debug, Clone)]

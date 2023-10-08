@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 use async_trait::async_trait;
-use futures::FutureExt;
 use futures::lock::Mutex;
 use mysql_async::Conn;
 use mysql_async::prelude::*;
@@ -235,7 +234,7 @@ impl<T> QueryBuilder<'_, usize, T, ORM>{
         if conn.is_none() {
             return Err(ORMError::NoConnection);
         }
-        let mut conn = conn.as_mut().unwrap();
+        let conn = conn.as_mut().unwrap();
         let r = conn.query_iter(self.query.as_str()).await.map(|result| {
             result.affected_rows()
         })?;
@@ -253,7 +252,7 @@ impl<T> QueryBuilder<'_, T,T, ORM>{
             if conn.is_none() {
                 return Err(ORMError::NoConnection);
             }
-            let mut conn = conn.as_mut().unwrap();
+            let conn = conn.as_mut().unwrap();
             let r = conn.query_iter(self.query.as_str()).await.map(|result| {
                 result.last_insert_id()
             })?;
@@ -283,7 +282,7 @@ impl<T> QueryBuilder<'_, usize,T, ORM> {
         if conn.is_none() {
             return Err(ORMError::NoConnection);
         }
-        let mut conn = conn.as_mut().unwrap();
+        let conn = conn.as_mut().unwrap();
         let r = conn.query_iter(self.query.as_str()).await?;
         Ok(r.affected_rows() as usize)
     }
@@ -335,7 +334,7 @@ impl<R> QueryBuilder<'_, Vec<Row>,R, ORM> {
         if conn.is_none() {
             return Err(ORMError::NoConnection);
         }
-        let mut conn = conn.as_mut().unwrap();
+        let conn = conn.as_mut().unwrap();
         let stmt_result = conn.query_iter( self.query.as_str()).await;
          if stmt_result.is_err() {
             let e = stmt_result.err().unwrap();
