@@ -21,6 +21,8 @@ mod deserializer_key_values;
 
 #[cfg(feature = "sqlite")]
 pub mod sqlite;
+#[cfg(feature = "mysql")]
+pub mod mysql;
 
 use std::collections::HashMap;
 use anyhow::Result;
@@ -36,8 +38,12 @@ use thiserror::Error;
 pub enum ORMError {
     #[error("std::io::Error")]
     StdError(#[from] std::io::Error),
+    #[cfg(feature = "mysql")]
     #[error("rusqlite::Error")]
     RusqliteError(#[from] rusqlite::Error),
+    #[cfg(feature = "mysql")]
+    #[error("mysql_async::Error")]
+    MySQLError(#[from] mysql_async::Error),
     #[error("unknown error")]
     Unknown,
     #[error("Error in object insertion")]

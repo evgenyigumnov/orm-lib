@@ -229,5 +229,16 @@ mod tests {
     }
 
 
+    #[tokio::test]
+    async fn test_mysql() -> Result<(), ORMError> {
+
+        let conn = ormlib::mysql::ORM::connect("mysql://root:root@192.168.145.128:3306/tests".to_string()).await?;
+        let init_script = "create_table_1.sql";
+        conn.init(init_script).await?;
+        conn.close().await?;
+        Ok(())
+    }
+
+
 }
 

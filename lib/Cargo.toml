@@ -7,7 +7,7 @@ authors = ["Evgeny Igumnov <igumnovnsk@gmail.com>"]
 repository = "https://github.com/evgenyigumnov/orm-lib"
 license = "MIT"
 license-file = "../LICENSE"
-keywords = ["orm", "sql", "database", "sqlite"]
+keywords = ["orm", "sql", "database", "sqlite", "mysql"]
 categories = ["library"]
 readme = "../README.md"
 description = "Indeed, an ORM library, not a framework, written in Rust"
@@ -25,9 +25,11 @@ tokio = { version = "1.25.0", features = ["full"] }
 serde = "1.0"
 anyhow = "1.0.75"
 rusqlite = { version = "0.29.0", features = ["bundled"], optional = true }
+mysql_async = { version = "0.32.2", default-features = false, features = ["default-rustls"], optional = true }
 
 [dev-dependencies]
 serde_derive = "1.0"
 
 [features]
 sqlite = ["rusqlite"]
+mysql = ["mysql_async"]
