@@ -23,7 +23,7 @@ mod deserializer_key_values;
 pub mod sqlite;
 
 use std::collections::HashMap;
-use rusqlite::{Result};
+use anyhow::Result;
 
 use std::fmt::Debug;
 use std::str::FromStr;
@@ -121,8 +121,6 @@ impl Row {
 
 #[async_trait]
 pub trait ORMTrait<O:ORMTrait<O>> {
-    // fn connect(url: String) -> Result<Arc<dyn ORMTrait>, ORMError>
-    // where Arc<dyn ORMTrait>: Send + Sync + 'static;
     fn add<T>(&self, data: T) -> QueryBuilder<T, T, O>
         where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Serialize + Debug + 'static;
 
