@@ -39,6 +39,7 @@ mod tests {
     use ormlib::sqlite::ORM;
 
 
+    // ANCHOR: readme_example
     #[tokio::test]
     async fn test() -> Result<(), ORMError> {
 
@@ -101,6 +102,7 @@ mod tests {
 
         Ok(())
     }
+    // ANCHOR_END: readme_example
 
     #[tokio::test]
     async fn test_dirty() -> Result<(), ORMError> {

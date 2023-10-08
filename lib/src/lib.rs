@@ -5,11 +5,15 @@
 //!  https://crates.io/crates/ormlib
 
 
-
+#[cfg(any(feature = "sqlite", feature = "mysql"))]
 mod serializer_error;
+#[cfg(any(feature = "sqlite", feature = "mysql"))]
 mod serializer_types;
+#[cfg(any(feature = "sqlite", feature = "mysql"))]
 mod serializer_values;
+#[cfg(any(feature = "sqlite", feature = "mysql"))]
 mod serializer_key_values;
+#[cfg(any(feature = "sqlite", feature = "mysql"))]
 mod deserializer_key_values;
 
 #[cfg(feature = "sqlite")]
@@ -31,7 +35,7 @@ use thiserror::Error;
 pub enum ORMError {
     #[error("std::io::Error")]
     StdError(#[from] std::io::Error),
-    #[cfg(feature = "mysql")]
+    #[cfg(feature = "sqlite")]
     #[error("rusqlite::Error")]
     RusqliteError(#[from] rusqlite::Error),
     #[cfg(feature = "mysql")]
