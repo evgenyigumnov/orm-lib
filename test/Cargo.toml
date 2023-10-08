@@ -6,7 +6,7 @@ publish = false
 
 
 [dependencies]
-ormlib = {path = "../lib"}
+ormlib = {path = "../lib", features = ["sqlite"]}
 ormlib_derive = {path = "../orm_derive"}
 futures = "0.3.26"
 

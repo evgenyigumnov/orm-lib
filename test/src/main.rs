@@ -12,7 +12,7 @@ async fn main() -> Result<(), ORMError> {
 mod tests {
     use serde_derive::{Deserialize, Serialize};
     use ormlib_derive::TableDeserialize;
-    use ormlib::{RowTrait, TableDeserialize};
+    use ormlib::{ORMTrait, TableDeserialize};
     use ormlib_derive::TableSerialize;
     use ormlib::TableSerialize;
     use ormlib::ORMError;
@@ -35,7 +35,8 @@ mod tests {
         Ok(())
     }
 
-    use ormlib::{ORM, Row};
+    use ormlib::{Row};
+    use ormlib::sqlite::ORM;
 
 
     #[tokio::test]

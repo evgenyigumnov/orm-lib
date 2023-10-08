@@ -8,7 +8,8 @@
 
 use crate::serializer_error::{Error, Result};
 use serde::ser::{self, Serialize};
-use crate::ORM;
+use crate::ORMTrait;
+use crate::sqlite::ORM;
 
 pub struct Serializer {
     // This string starts empty and JSON is appended as values are serialized.
