@@ -126,34 +126,23 @@ impl Row {
 pub trait ORMTrait<O:ORMTrait<O>> {
     fn add<T>(&self, data: T) -> QueryBuilder<T, T, O>
         where T: for<'a> Deserialize<'a> + TableDeserialize + TableSerialize + Serialize + Debug + 'static;
-
     async fn last_insert_rowid(&self)  -> Result<i64, ORMError>;
-
-
     async fn close(&self)  -> Result<(), ORMError>;
-
     fn find_one<T: TableDeserialize>(&self, id: u64) -> QueryBuilder<Option<T>, T, O>
     where T: TableDeserialize + TableSerialize + for<'a> Deserialize<'a> + 'static;
     fn find_many<T>(&self, query_where: &str) -> QueryBuilder<Vec<T>, T, O>
         where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static;
-
     fn find_all<T>(&self) -> QueryBuilder<Vec<T>, T, O>
         where T: for<'a> Deserialize<'a> + TableDeserialize + Debug + 'static;
-
     fn modify<T>(&self, data: T) -> QueryBuilder<usize, (), O>
         where T: TableDeserialize + TableSerialize + Serialize + 'static;
-
     fn remove<T>(&self, data: T) -> QueryBuilder<usize, (), O>
         where T: TableDeserialize + TableSerialize + Serialize + 'static;
     fn query<T>(&self, query: &str) -> QueryBuilder<Vec<T>, T, O>;
-
     fn query_update(&self, query: &str) -> QueryBuilder<usize, (), O>;
-
     fn protect(&self, value: &str) -> String;
     fn escape(str: &str) -> String;
     fn escape_json(input: &str) -> String;
-
-
     async fn init(&self, script: &str) -> Result<(), ORMError>;
 }
 
@@ -161,7 +150,7 @@ pub struct QueryBuilder<'a, R, E, O: ORMTrait<O>> {
     query: String,
     entity:  std::marker::PhantomData<E>,
     orm: &'a O,
-    result: std::marker::PhantomData<R>,
+    result: std::marker::PhantomData<std::marker::PhantomData<R>>,
 }
 
 
