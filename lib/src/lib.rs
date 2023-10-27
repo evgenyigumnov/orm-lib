@@ -146,6 +146,7 @@ pub trait ORMTrait<O:ORMTrait<O>> {
     async fn init(&self, script: &str) -> Result<(), ORMError>;
 }
 
+#[allow(dead_code)]
 pub struct QueryBuilder<'a, R, E, O: ORMTrait<O>> {
     query: String,
     entity:  std::marker::PhantomData<E>,
