@@ -2,7 +2,6 @@ use std::fmt::Debug;
 use std::sync::Arc;
 use async_trait::async_trait;
 use futures::lock::Mutex;
-use futures::SinkExt;
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use crate::{deserializer_key_values, ORMError, ORMTrait, QueryBuilder, Row, serializer_error, serializer_key_values, serializer_types, serializer_values, TableDeserialize, TableSerialize};
