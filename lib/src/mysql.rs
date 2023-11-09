@@ -225,6 +225,10 @@ impl ORMTrait<ORM> for ORM {
 
         Ok(())
     }
+
+    async fn change(&self, update_query: &str) -> anyhow::Result<(), ORMError> {
+        todo!()
+    }
 }
 
 impl<T> QueryBuilder<'_, usize, T, ORM>{

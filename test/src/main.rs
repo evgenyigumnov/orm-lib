@@ -195,6 +195,7 @@ mod tests {
         Ok(())
     }
 
+
     #[tokio::test]
     async fn test_remove() -> Result<(), ORMError> {
 
@@ -231,6 +232,26 @@ mod tests {
     }
 
 
+
+    #[tokio::test]
+    async fn test_ver() -> Result<(), ORMError> {
+        let _ = env_logger::Builder::from_env(env_logger::Env::new().default_filter_or("debug")).try_init();
+        test_ver_impl().await?;
+        test_ver_impl().await?;
+        Ok(())
+    }
+    async fn test_ver_impl() -> Result<(), ORMError> {
+
+        let conn = ORM::connect("file5.db".to_string())?;
+
+        let change_1 = "CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT, name  TEXT,age INTEGER)";
+        let change_2 = "ALTER TABLE user DROP COLUMN age";
+        conn.change(change_1).await.unwrap();
+        conn.change(change_2).await.unwrap();
+        conn.close().await.unwrap();
+
+        Ok(())
+    }
 
 
     #[tokio::test]

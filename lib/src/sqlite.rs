@@ -2,6 +2,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 use async_trait::async_trait;
 use futures::lock::Mutex;
+use futures::SinkExt;
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use crate::{deserializer_key_values, ORMError, ORMTrait, QueryBuilder, Row, serializer_error, serializer_key_values, serializer_types, serializer_values, TableDeserialize, TableSerialize};
@@ -9,6 +10,7 @@ use crate::{deserializer_key_values, ORMError, ORMTrait, QueryBuilder, Row, seri
 #[derive(Debug)]
 pub struct ORM {
     conn: Mutex<Option<Connection>>,
+    change_count: Mutex<u32>,
 }
 
 impl ORM {
@@ -19,6 +21,7 @@ impl ORM {
         let conn = Connection::open(url)?;
         Ok(Arc::new(ORM {
             conn: Mutex::new(Some(conn)),
+            change_count: 0.into(),
         }))
     }
 }
@@ -220,6 +223,27 @@ impl ORMTrait<ORM> for ORM {
         let query = std::fs::read_to_string(script)?;
         let _updated_rows: usize = self.query_update(query.as_str()).exec().await?;
 
+        Ok(())
+    }
+
+    async fn change(&self, update_query: &str) -> anyhow::Result<(), ORMError> {
+        let _ = self.query_update("CREATE TABLE ormlib_last_change (id INTEGER PRIMARY KEY AUTOINCREMENT, last INTEGER)").exec().await;
+        let rows = self.query("select id, last from ormlib_last_change").exec().await?;
+        let last = if rows.len() == 0 {
+            let _ = self.query_update("insert into ormlib_last_change (last) values (0)").exec().await;
+            0
+        } else {
+            let row: &Row = rows.get(0).unwrap();
+            let last: u32 = row.get(1).unwrap();
+            last
+        };
+        let mut change_count = self.change_count.lock().await;
+        //self.change_count = self.change_count + 1;
+        *change_count = *change_count + 1;
+        if *change_count > last {
+            let _updated_rows: usize = self.query_update(update_query).exec().await?;
+            let _updated_rows: usize = self.query_update(format!("update ormlib_last_change set last = {}",*change_count).as_str()).exec().await?;
+        }
         Ok(())
     }
 }

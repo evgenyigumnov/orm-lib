@@ -68,7 +68,7 @@ pub trait TableDeserialize {
 
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Row {
     pub columns: HashMap<i32,Option<String>>,
 }
@@ -144,6 +144,7 @@ pub trait ORMTrait<O:ORMTrait<O>> {
     fn escape(str: &str) -> String;
     fn escape_json(input: &str) -> String;
     async fn init(&self, script: &str) -> Result<(), ORMError>;
+    async fn change(&self, update_query: &str) -> Result<(), ORMError>;
 }
 
 #[allow(dead_code)]
